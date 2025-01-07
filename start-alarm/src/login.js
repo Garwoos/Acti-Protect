@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './login.css'; // Facultatif, pour styliser la page
+import { Link } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -16,27 +17,30 @@ const Login = () => {
       <form className="login-form" onSubmit={handleSubmit}>
         <h2>Se Connecter</h2>
         <div>
-          <label htmlFor="email">Email:</label>
           <input
             type="email"
             id="email"
+            placeholder='Adresse e-mail'
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
         <div>
-          <label htmlFor="password">Mot de passe:</label>
           <input
             type="password"
             id="password"
+            placeholder='Mot de passe'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
-        <div>
-          
+        <div className="login-logo">
+          <img src="/images/LOGO-START-ALARM-Q.png" alt="Avatar" />
+        </div>
+        <div className="no-account">
+          <Link to="/register">Pas de compte ? Créer un compte</Link>
         </div>
         <button type="submit">Connexion</button>
       </form>
