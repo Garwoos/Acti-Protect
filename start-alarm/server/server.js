@@ -4,6 +4,9 @@ const path = require('path');
 const app = express();
 const port = 5000; // Choisir un port pour ton serveur Express (ici 5000)
 
+// Sert le dossier public
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Middleware pour servir les fichiers statiques (images, CSS, JS, etc.)
 app.use(express.static(path.join(__dirname, '../build'))); // Le dossier "build" est généré par React lors de la construction
 
