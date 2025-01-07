@@ -38,18 +38,18 @@ router.get('/users', (req, res) => {
 
 router.post('/loginin', (req, res) => {
     // Extract username and password from the request body 
-    const { username, password } = req.body;
-    if (!username || !password) {
-        return res.status(400).send('Username and password are required');
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).send('Email and password are required');
     }
 
     const table = 'utilisateurs';
 
     // Use prepared statements to prevent SQL injection
-    const query = `SELECT * FROM ${table} WHERE username = ?`;
+    const query = `SELECT * FROM ${table} WHERE email = ?`;
 
     // Execute the query
-    connection.query(query, [username], (err, results) => {
+    connection.query(query, [email], (err, results) => {
         if (err) {
             console.error('Error executing query: ', err);
             return res.status(500).send('Error executing query');
@@ -110,4 +110,11 @@ router.post('/register', (req, res) => {
     });
 });
 
+router.post('/insertequipment', (req, res) => {
+    // insert equipment into the database
+    
+
+
+
+// Exporter le router
 module.exports = router;
