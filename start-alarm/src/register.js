@@ -5,36 +5,40 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [username, setUsername] = useState('');
+  const [message, setMessage] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      alert('Les mots de passe ne correspondent pas');
+      setMessage('Les mots de passe ne correspondent pas');
       return;
     }
 
-    // Logique pour envoyer les données au backend ou vérifier les données
-    console.log('Nom d’utilisateur:', username);
-    console.log('Email:', email);
-    console.log('Mot de passe:', password);
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, passwordConfirmation: confirmPassword }),
+      });
+
+      if (response.ok) {
+        setMessage('Inscription réussie');
+      } else {
+        const errorData = await response.json();
+        setMessage(`Erreur: ${errorData.message}`);
+      }
+    } catch (error) {
+      setMessage(`Erreur: ${error.message}`);
+    }
   };
 
   return (
     <div className="register-container">
       <form className="register-form" onSubmit={handleSubmit}>
         <h2>Créer un Compte</h2>
-        <div>
-          <input
-            type="text"
-            id="username"
-            placeholder="Nom d'utilisateur"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
         <div>
           <input
             type="email"
@@ -69,9 +73,10 @@ const Register = () => {
           <img src="/images/LOGO-START-ALARM-Q.png" alt="Logo" />
         </div>
         <button type="submit">S'inscrire</button>
+        {message && <p>{message}</p>}
       </form>
     </div>
   );
 };
 
-export default Register;    
+export default Register;
