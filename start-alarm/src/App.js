@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './login'; // Assurez-vous que le chemin est correct
 import Register from './register'; // Assurez-vous que le chemin est correct
 import Accueil from './accueil'; // Assurez-vous que le chemin est correct
+import Simulateur from './simulateur';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/accueil" element={<Accueil />} />
+          <Route path="/simulateur" element={<Simulateur />} />
         </Routes>
       </div>
     </Router>
