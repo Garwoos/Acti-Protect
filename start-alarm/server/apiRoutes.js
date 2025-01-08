@@ -110,11 +110,5 @@ router.post('/register', (req, res) => {
     });
 });
 
-router.post('/insertequipment', (req, res) => {
-    // insert equipment into the database
-    
-
-
-
 // Exporter le router
 module.exports = router;

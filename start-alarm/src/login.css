@@ -22,23 +22,19 @@
     margin-bottom: 20px;
   }
   
-  .login-form label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
   .login-form input {
     width: 90%;
-    padding: 8px;
+    padding: 16px;
     margin-top: 10%;
     border: 1px solid #ccc;
     border-radius: 4px;
+    font-size: larger;
   }
 
   input::placeholder {
     color: #0073af;
     font-weight: lighter;
+    font-size: large;
   }
   
   .login-form button {
@@ -68,8 +64,19 @@
     user-select: none;
     pointer-events: none;
   }
+
   h2 {
     text-align: center;
     font-size: 3rem;
+  }
+
+  .no-account {
+    text-align: center;
+    margin: 5%;
+  }
+
+  .no-account a {
+    color: #004078;
+    font-weight: bold;
   }
   
