@@ -14,7 +14,7 @@ app.use(express.static(path.join(__dirname, '../public'))); // Le dossier "publi
 app.use(express.static(path.join(__dirname, '../build'))); // Le dossier "build" est généré par React lors de la construction
 
 // Utiliser les routes API
-const apiRoutes = require('./apiRoutes');
+const apiRoutes = require('../../api-start-alarm/apiRoutes');
 app.use('/api', apiRoutes);
 
 // Route par défaut pour servir l'index de React
