@@ -37,7 +37,7 @@ const Accueil = () => {
           </header>
           <div className="accueil-features">
             <motion.button className="btn-conf" initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1.5, ease: "easeInOut" }}>
-              <Link to="/configurateur" className="btn-link">Tester le configurateur</Link>
+              <Link to="/simulateur" className="btn-link">Tester le configurateur</Link>
             </motion.button>
           </div>
         </section>
