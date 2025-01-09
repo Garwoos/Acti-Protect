@@ -30,75 +30,107 @@ const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
 
+    const resizeCanvas = () => {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+      drawGrid();
+    };
+
     // Ajuster la taille du canvas pour qu'il prenne toute la place disponible
-    canvas.width = canvas.parentElement.clientWidth;
-    canvas.height = canvas.parentElement.clientHeight;
+    resizeCanvas();
 
-    // Dessiner la grille
-    function drawGrid() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Ajouter un écouteur d'événement pour redimensionner le canvas lorsque la fenêtre change de taille
+    window.addEventListener('resize', resizeCanvas);
 
-      for (let x = 0; x <= canvas.width; x += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
-        ctx.strokeStyle = '#ddd';
-        ctx.stroke();
-      }
+    // Nettoyer l'écouteur d'événement lors du démontage du composant
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+    };
+  }, []);
 
-      for (let y = 0; y <= canvas.height; y += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
-        ctx.strokeStyle = '#ddd';
-        ctx.stroke();
-      }
+  const drawGrid = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Dessiner les lignes tracées
-      lines.forEach((line) => {
-        ctx.beginPath();
-        ctx.moveTo(line.startX, line.startY);
-        ctx.lineTo(line.endX, line.endY);
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 5;
-        ctx.stroke();
-      });
+    // Définir les propriétés de dessin pour la grille
+    ctx.strokeStyle = '#ddd';
+    ctx.lineWidth = 1;
 
-      if (currentLine) {
-        ctx.beginPath();
-        ctx.moveTo(currentLine.startX, currentLine.startY);
-        ctx.lineTo(currentLine.endX, currentLine.endY);
-        ctx.strokeStyle = 'blue';
-        ctx.lineWidth = 5;
-        ctx.stroke();
-      }
-
-      // Dessiner les éléments
-      elements.forEach((el) => {
-        const img = images[el.type];
-        if (img) {
-          ctx.save();
-          ctx.translate(el.x, el.y);
-          ctx.rotate(el.orientation * Math.PI / 180);
-          ctx.drawImage(img, -25, -50, 50, 50); // Ajuster la position pour que le bas de l'image touche le mur
-          ctx.restore();
-        }
-      });
-
-      // Dessiner l'élément en main sous le curseur
-      if (toolInHand) {
-        const img = images[toolInHand];
-        if (img) {
-          const { snappedPosition, angle } = snapToWall(cursorPosition.x, cursorPosition.y, lines);
-          ctx.save();
-          ctx.translate(snappedPosition.x, snappedPosition.y);
-          ctx.rotate(angle * Math.PI / 180);
-          ctx.drawImage(img, -25, -50, 50, 50); // Ajuster la position pour que le bas de l'image touche le mur
-          ctx.restore();
-        }
-      }
+    for (let x = 0; x <= canvas.width; x += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvas.height);
+      ctx.stroke();
     }
 
+    for (let y = 0; y <= canvas.height; y += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+    }
+
+    // Dessiner les lignes tracées
+    lines.forEach((line) => {
+      ctx.beginPath();
+      ctx.moveTo(line.startX, line.startY);
+      ctx.lineTo(line.endX, line.endY);
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+    });
+
+    if (currentLine) {
+      ctx.beginPath();
+      ctx.moveTo(currentLine.startX, currentLine.startY);
+      ctx.lineTo(currentLine.endX, currentLine.endY);
+      ctx.strokeStyle = 'blue';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+    }
+
+    // Effacer la partie du mur collée aux éléments
+    elements.forEach((el) => {
+      eraseWallPart(ctx, el);
+    });
+
+    // Dessiner les éléments
+    elements.forEach((el) => {
+      const img = images[el.type];
+      if (img) {
+        ctx.save();
+        ctx.translate(el.x, el.y);
+        ctx.rotate(el.orientation * Math.PI / 180);
+        ctx.drawImage(img, -25, -43, 50, 50); // Ajuster la position pour que le bas de l'image touche le mur
+        ctx.restore();
+      }
+    });
+
+    // Dessiner l'élément en main sous le curseur
+    if (toolInHand) {
+      const img = images[toolInHand];
+      if (img) {
+        const { snappedPosition, angle } = snapToWall(cursorPosition.x, cursorPosition.y, lines);
+        ctx.save();
+        ctx.translate(snappedPosition.x, snappedPosition.y);
+        ctx.rotate(angle * Math.PI / 180);
+        ctx.drawImage(img, -25, -50, 50, 50); // Ajuster la position pour que le bas de l'image touche le mur
+        ctx.restore();
+      }
+    }
+  };
+
+  const eraseWallPart = (ctx, element) => {
+    const { x, y, orientation } = element;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(orientation * Math.PI / 180);
+    ctx.clearRect(-20, -15, 40, 20); // Effacer la partie du mur collée à l'élément
+    ctx.restore();
+  };
+
+  useEffect(() => {
     drawGrid();
   }, [lines, currentLine, elements, toolInHand, cursorPosition, images]);
 

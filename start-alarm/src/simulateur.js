@@ -3,7 +3,7 @@ import GridCanvas from './components/GridCanvas';
 import Toolbar from './components/Toolbar';
 
 const Simulateur = () => {
-  const [tool, setTool] = useState('wall'); // Outil sélectionné (exemple)
+  const [tool] = useState('wall'); // Outil sélectionné (exemple)
   const [toolInHand, setToolInHand] = useState(null); // Élément en main
 
   return (
