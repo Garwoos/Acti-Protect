@@ -1,13 +1,30 @@
 import React, { useRef, useEffect, useState } from 'react';
-import windowImg from '../assets/window.png'; // Chemin vers l'image de la fenêtre
-import doorImg from '../assets/door.png'; // Chemin vers l'image de la porte
+import windowImgSrc from '../assets/window.png'; // Chemin vers l'image de la fenêtre
+import doorImgSrc from '../assets/door.png'; // Chemin vers l'image de la porte
 
-const GridCanvas = ({ tool }) => {
+const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
   const canvasRef = useRef(null);
   const gridSize = 50; // 1 mètre = 50px
   const [lines, setLines] = useState([]); // Stocker les lignes dessinées
   const [currentLine, setCurrentLine] = useState(null);
   const [elements, setElements] = useState([]); // Stocker les éléments placés
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 }); // Position du curseur
+  const [images, setImages] = useState({}); // Stocker les images préchargées
+
+  useEffect(() => {
+    // Précharger les images
+    const windowImg = new Image();
+    const doorImg = new Image();
+    windowImg.src = windowImgSrc;
+    doorImg.src = doorImgSrc;
+
+    windowImg.onload = () => {
+      setImages((prevImages) => ({ ...prevImages, window: windowImg }));
+    };
+    doorImg.onload = () => {
+      setImages((prevImages) => ({ ...prevImages, door: doorImg }));
+    };
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -58,37 +75,59 @@ const GridCanvas = ({ tool }) => {
 
       // Dessiner les éléments
       elements.forEach((el) => {
-        const img = new Image();
-        img.src = el.type === 'window' ? windowImg : doorImg;
-        img.onload = () => {
+        const img = images[el.type];
+        if (img) {
           ctx.save();
           ctx.translate(el.x, el.y);
           ctx.rotate(el.orientation * Math.PI / 180);
-          ctx.drawImage(img, -25, -25, 50, 50); // Redimensionner l'image à 50px
+          ctx.drawImage(img, -25, -50, 50, 50); // Ajuster la position pour que le bas de l'image touche le mur
           ctx.restore();
-        };
+        }
       });
+
+      // Dessiner l'élément en main sous le curseur
+      if (toolInHand) {
+        const img = images[toolInHand];
+        if (img) {
+          const { snappedPosition, angle } = snapToWall(cursorPosition.x, cursorPosition.y, lines);
+          ctx.save();
+          ctx.translate(snappedPosition.x, snappedPosition.y);
+          ctx.rotate(angle * Math.PI / 180);
+          ctx.drawImage(img, -25, -50, 50, 50); // Ajuster la position pour que le bas de l'image touche le mur
+          ctx.restore();
+        }
+      }
     }
 
     drawGrid();
-  }, [lines, currentLine, elements]);
+  }, [lines, currentLine, elements, toolInHand, cursorPosition, images]);
 
   const handleMouseDown = (e) => {
     const rect = canvasRef.current.getBoundingClientRect();
-    const startX = e.clientX - rect.left;
-    const startY = e.clientY - rect.top;
-    
-    setCurrentLine({ startX, startY, endX: startX, endY: startY });
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if (toolInHand) {
+      const { snappedPosition, angle } = snapToWall(x, y, lines);
+      const id = `${toolInHand}-${elements.length + 1}`; // Générer un identifiant unique
+      setElements([...elements, { id, x: snappedPosition.x, y: snappedPosition.y, type: toolInHand, orientation: angle }]);
+      setToolInHand(null); // Réinitialiser l'élément en main
+    } else {
+      setCurrentLine({ startX: x, startY: y, endX: x, endY: y });
+    }
   };
 
   const handleMouseMove = (e) => {
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setCursorPosition({ x, y });
+
     if (!currentLine) return;
 
-    const rect = canvasRef.current.getBoundingClientRect();
-    const endX = e.clientX - rect.left;
-    const endY = e.clientY - rect.top;
-
-    setCurrentLine({ ...currentLine, endX, endY });
+    if (currentLine) {
+      setCurrentLine({ ...currentLine, endX: x, endY: y });
+    }
   };
 
   const handleMouseUp = () => {
@@ -106,16 +145,58 @@ const GridCanvas = ({ tool }) => {
     const y = e.clientY - rect.top;
     const type = e.dataTransfer.getData('elementType');
 
-    const snappedPosition = snapToGrid(x, y, lines);
-    setElements([...elements, { x: snappedPosition.x, y: snappedPosition.y, type, orientation: 0 }]);
+    const { snappedPosition, angle } = snapToWall(x, y, lines);
+    const id = `${type}-${elements.length + 1}`; // Générer un identifiant unique
+    setElements([...elements, { id, x: snappedPosition.x, y: snappedPosition.y, type, orientation: angle }]);
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
   };
 
-  const rotateElement = (index) => {
-    setElements(elements.map((el, i) => i === index ? { ...el, orientation: (el.orientation + 90) % 360 } : el));
+  const snapToWall = (x, y, lines, threshold = 50) => {
+    let closestPoint = { x, y };
+    let closestAngle = 0;
+    let minDistance = Infinity;
+
+    lines.forEach((line) => {
+      const points = [
+        { x: line.startX, y: line.startY },
+        { x: line.endX, y: line.endY },
+      ];
+
+      points.forEach((point) => {
+        const distance = Math.sqrt((x - point.x) ** 2 + (y - point.y) ** 2);
+        if (distance < minDistance && distance < threshold) {
+          minDistance = distance;
+          closestPoint = point;
+          closestAngle = Math.atan2(line.endY - line.startY, line.endX - line.startX) * 180 / Math.PI;
+        }
+      });
+
+      // Calculer la projection du point (x, y) sur la ligne
+      const lineLength = Math.sqrt((line.endX - line.startX) ** 2 + (line.endY - line.startY) ** 2);
+      const t = ((x - line.startX) * (line.endX - line.startX) + (y - line.startY) * (line.endY - line.startY)) / (lineLength ** 2);
+      if (t >= 0 && t <= 1) {
+        const projection = {
+          x: line.startX + t * (line.endX - line.startX),
+          y: line.startY + t * (line.endY - line.startY),
+        };
+        const projectionDistance = Math.sqrt((x - projection.x) ** 2 + (y - projection.y) ** 2);
+        if (projectionDistance < minDistance && projectionDistance < threshold) {
+          minDistance = projectionDistance;
+          closestPoint = projection;
+          closestAngle = Math.atan2(line.endY - line.startY, line.endX - line.startX) * 180 / Math.PI;
+
+          // Inverser l'orientation si l'élément est à gauche du mur
+          if (x < projection.x) {
+            closestAngle += 180;
+          }
+        }
+      }
+    });
+
+    return { snappedPosition: closestPoint, angle: closestAngle };
   };
 
   return (
@@ -129,7 +210,6 @@ const GridCanvas = ({ tool }) => {
         onDrop={handleDrop}
         onDragOver={handleDragOver}
       />
-      <button onClick={() => rotateElement(0)} style={{ position: 'absolute', top: 10, left: 10 }}>Rotate Element</button>
     </div>
   );
 };

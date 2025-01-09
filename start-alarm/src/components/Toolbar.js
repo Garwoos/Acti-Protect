@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Toolbar = () => {
+const Toolbar = ({ setToolInHand }) => {
   const elements = [
     { id: 'sensor', label: 'Capteur' },
     { id: 'door', label: 'Porte' },
@@ -9,6 +9,10 @@ const Toolbar = () => {
 
   const handleDragStart = (e, type) => {
     e.dataTransfer.setData('elementType', type);
+  };
+
+  const handleClick = (type) => {
+    setToolInHand(type);
   };
 
   return (
@@ -20,6 +24,7 @@ const Toolbar = () => {
             key={el.id}
             draggable
             onDragStart={(e) => handleDragStart(e, el.id)}
+            onClick={() => handleClick(el.id)}
             style={styles.listItem}
           >
             {el.label}

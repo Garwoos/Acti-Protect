@@ -3,15 +3,16 @@ import GridCanvas from './components/GridCanvas';
 import Toolbar from './components/Toolbar';
 
 const Simulateur = () => {
-  const [tool] = useState('wall'); // Outil sélectionné (exemple)
+  const [tool, setTool] = useState('wall'); // Outil sélectionné (exemple)
+  const [toolInHand, setToolInHand] = useState(null); // Élément en main
 
   return (
     <div style={styles.container}>
       <div style={styles.gridContainer}>
         <h1 style={styles.title}>Simulateur d'Alarme</h1>
-        <GridCanvas tool={tool} />
+        <GridCanvas tool={tool} toolInHand={toolInHand} setToolInHand={setToolInHand} />
       </div>
-      <Toolbar />
+      <Toolbar setToolInHand={setToolInHand} />
     </div>
   );
 };
@@ -23,7 +24,7 @@ const styles = {
     height: '100vh',
   },
   gridContainer: {
-    flex: 1, // Prend tout l'espace restant
+    flex: 1,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
