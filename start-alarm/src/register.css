@@ -1,11 +1,49 @@
 .register-container {
     display: flex;
-    justify-content: right;
+    justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #f9f9f9;
-    position: relative;
-    padding-right: 10%;
+    background-image: url(https://images.hdqwalls.com/wallpapers/after-sunset-minimal-4k-zm.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+
+  .register-container-Left {
+    display: inline-block;
+    justify-content: left;
+    align-items: center;
+    height: 100vh;
+    background-color: transparent;
+    width: 50%;
+  }
+
+  .register-text {
+    font-size: 5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+    margin-top: 40%;
+    margin-left: 0%;
+    line-height: 0%;
+  }
+
+  .register-subtext{
+    font-size: 4rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+    margin-left: 20%;
+  }
+
+  .register-container-Right {
+    display: inline-block;
+    justify-content: right;
+    align-items: right;
+    height: 100vh;
+    background-color: transparent;
+    width: 50%;
   }
   
   .register-form {
@@ -15,12 +53,14 @@
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     max-width: 400px;
-    width: 100%;
+    width: 100%;  
+    margin-left: 30%;
+    margin-top: 5%;
   }
   
   .register-form h2 {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 10%;
   }
   
   .register-form input {
@@ -55,6 +95,8 @@
     display: flex;
     justify-content: center;
     margin: 10%;
+    pointer-events: none;
+    user-select: none;
   }
   
   .register-logo img {

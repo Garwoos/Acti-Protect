@@ -1,52 +1,91 @@
+
+body{
+    background-color: #0b1926;
+}
+
 .accueil-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
     min-height: 100vh;
-    background-color: #f0f0f0;
     color: #333;
     font-family: Arial, sans-serif;
     text-align: center;
-    padding: 20px;
   }
   
   .accueil-header {
-    margin-top: 20px;
-  }
-  
-  .accueil-logo {
-    width: 120px;
-    height: auto;
-    margin-bottom: 20px;
-  }
-  
-  .accueil-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-  }
-  
-  .accueil-section {
-    background: #0073af;
     color: white;
-    border-radius: 8px;
-    padding: 20px;
-    width: 90%;
-    max-width: 500px;
+    justify-content: center;
+    align-items: center;
   }
   
-  .accueil-section h2 {
-    margin-bottom: 10px;
+  .accueil-content {
+    justify-content: center;
+    display: contents;
+    width: 100%;
+  }
+
+  .accueil-features {
+    margin-bottom: 8rem;
+  }
+
+  .btn-conf {
+    width: 13rem;
+    padding: 10%;
+    background-color: #005f8c;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
   }
   
-  .accueil-buttons {
-    display: flex;
-    gap: 15px;
+
+  .btn-conf a {
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-conf:hover {
+    background-color: #014a6c;
+    transition: background-color 0.5s ease;
+  }
+
+  .animated-text {
+    font-size: 6rem;
+    color: #ffffff;
+    opacity: 0; /* Départ invisible */
+    transform: translateY(50px); /* Départ décalé vers le bas */
+    animation: slideIn 1.5s ease-out forwards; /* Animation appliquée */
   }
   
+  .animated-subtext {
+    font-size: 4rem;
+    color: #ffffff;
+    opacity: 0; /* Départ invisible */
+    transform: translateY(50px); /* Départ décalé vers le bas */
+    animation: slideIn 2.5s ease-out forwards; /* Animation appliquée */
+  }
+
+  /* Définition de l'animation */
+  @keyframes slideIn {
+    0% {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  h1{
+    text-align: center;
+    font-size: 4rem;
+    color: white;
+  }
+
   .btn {
     display: inline-block;
     padding: 10px 20px;
@@ -79,5 +118,87 @@
     margin-top: 20px;
     font-size: 14px;
     color: #777;
+  }
+
+/* MENU NAVBAR PRINCIPAL */
+
+.custom-navbar {
+    background-color: #343a40; /* Couleur sombre pour la navbar */
+    height: 4rem;
+  }
+
+  .navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .me-auto {
+    margin-left: auto;
+    display: flex;  
+    margin-right: 3rem;
+  }
+
+  .navbar-brand {
+    margin-left: 1rem;
+  }
+
+  .nav-link {
+    height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #basic-nav-dropdown.dropdown-toggle.nav-link a{
+    width: 10rem;
+  }
+  
+  .custom-navbar .navbar-brand {
+    color: #ffffff; /* Couleur du texte de la marque */
+    font-size: 1.5rem; /* Taille du texte de la marque */
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  .custom-dropdown {
+    display: block;
+  }
+
+  #basic-navbar-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .custom-dropdown .dropdown-menu {
+    background-color: #343a40; /* Fond du menu déroulant */
+    border: none; /* Pas de bordure */
+  }
+
+  .custom-navbar .nav-link,
+  .custom-navbar .dropdown-toggle {
+    color: #ffffff; /* Couleur des liens */
+    font-size: 1rem; /* Taille de police des liens */
+    text-decoration: none;
+    width: 10rem;
+  }
+  
+  .custom-navbar .nav-link:hover,
+  .custom-navbar .dropdown-toggle:hover {
+    color: #9fa2a5; /* Couleur des liens au survol */
+  }
+  
+  .custom-navbar .dropdown-menu {
+    background-color: #343a40; /* Fond du menu déroulant */
+    border: none; /* Pas de bordure */
+  }
+  
+  .custom-navbar .dropdown-item {
+    color: #ffffff; /* Couleur des éléments du menu */
+  }
+  
+  .custom-navbar .dropdown-item:hover {
+    background-color: #495057; /* Fond au survol dans le menu */
   }
   
