@@ -4,7 +4,7 @@ import Toolbar from './components/Toolbar';
 import { color } from 'framer-motion';
 
 const Simulateur = () => {
-  const [tool, setTool] = useState('wall'); // Outil sélectionné (exemple)
+  const [tool] = useState('wall'); // Outil sélectionné (exemple)
   const [toolInHand, setToolInHand] = useState(null); // Élément en main
 
   return (
