@@ -92,7 +92,9 @@ const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
 
     // Effacer la partie du mur collée aux éléments
     elements.forEach((el) => {
-      eraseWallPart(ctx, el);
+      if (el.type === 'door' || el.type === 'window') {
+        eraseWallPart(ctx, el);
+      }
     });
 
     // Dessiner les éléments
@@ -102,8 +104,13 @@ const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
         ctx.save();
         ctx.translate(el.x, el.y);
         ctx.rotate(el.orientation * Math.PI / 180);
-        ctx.drawImage(img, -25, -43, 50, 50); // Ajuster la position pour que le bas de l'image touche le mur
+        ctx.drawImage(img, -25, -50, 50, 50); // Ajuster la position pour que le bas de l'image touche le mur
         ctx.restore();
+      }
+
+      // Dessiner le cercle de détection pour les capteurs
+      if (el.type === 'sensor') {
+        drawDetectionCircle(ctx, el);
       }
     });
 
@@ -111,7 +118,7 @@ const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
     if (toolInHand) {
       const img = images[toolInHand];
       if (img) {
-        const { snappedPosition, angle } = snapToWall(cursorPosition.x, cursorPosition.y, lines);
+        const { snappedPosition, angle } = snapToWall(cursorPosition.x, cursorPosition.y, lines, toolInHand);
         ctx.save();
         ctx.translate(snappedPosition.x, snappedPosition.y);
         ctx.rotate(angle * Math.PI / 180);
@@ -121,12 +128,83 @@ const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
     }
   };
 
+  const drawDetectionCircle = (ctx, element) => {
+    const { x, y, range } = element;
+  
+    // Commencer à dessiner la zone de détection
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, range, 0, 2 * Math.PI, false);
+    ctx.fillStyle = 'rgba(0, 255, 0, 0.2)';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'green';
+    ctx.stroke();
+    ctx.restore();
+  
+    // Supprimer les parties du cercle bloquées par les murs
+    lines.forEach((line) => {
+      blockDetectionByWall(ctx, x, y, range, line);
+    });
+  };
+  
+  // Fonction pour bloquer une partie de la zone de détection par un mur
+  const blockDetectionByWall = (ctx, cx, cy, range, line) => {
+    const { startX, startY, endX, endY } = line;
+  
+    // Calculer les points d'intersection du mur avec le cercle
+    const intersections = getCircleLineIntersections(cx, cy, range, startX, startY, endX, endY);
+  
+    if (intersections.length > 0) {
+      intersections.forEach(([ix, iy]) => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(cx, cy); // Centre du capteur
+        ctx.lineTo(ix, iy); // Intersection avec le mur
+        ctx.clip();
+        ctx.clearRect(cx - range, cy - range, range * 2, range * 2);
+        ctx.restore();
+      });
+    }
+  };
+
+  const getCircleLineIntersections = (cx, cy, radius, x1, y1, x2, y2) => {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+  
+    const a = dx * dx + dy * dy;
+    const b = 2 * (dx * (x1 - cx) + dy * (y1 - cy));
+    const c = (x1 - cx) * (x1 - cx) + (y1 - cy) * (y1 - cy) - radius * radius;
+  
+    const det = b * b - 4 * a * c;
+    if (det < 0) {
+      // Pas d'intersection
+      return [];
+    }
+  
+    const t1 = (-b + Math.sqrt(det)) / (2 * a);
+    const t2 = (-b - Math.sqrt(det)) / (2 * a);
+  
+    const intersections = [];
+  
+    if (t1 >= 0 && t1 <= 1) {
+      intersections.push([x1 + t1 * dx, y1 + t1 * dy]);
+    }
+    if (t2 >= 0 && t2 <= 1) {
+      intersections.push([x1 + t2 * dx, y1 + t2 * dy]);
+    }
+  
+    return intersections;
+  };
+  
+  
+
   const eraseWallPart = (ctx, element) => {
     const { x, y, orientation } = element;
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(orientation * Math.PI / 180);
-    ctx.clearRect(-20, -15, 40, 20); // Effacer la partie du mur collée à l'élément
+    ctx.clearRect(-25, -50, 50, 50); // Effacer la partie du mur collée à l'élément
     ctx.restore();
   };
 
@@ -140,9 +218,9 @@ const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
     const y = e.clientY - rect.top;
 
     if (toolInHand) {
-      const { snappedPosition, angle } = snapToWall(x, y, lines);
+      const { snappedPosition, angle } = snapToWall(x, y, lines, toolInHand);
       const id = `${toolInHand}-${elements.length + 1}`; // Générer un identifiant unique
-      setElements([...elements, { id, x: snappedPosition.x, y: snappedPosition.y, type: toolInHand, orientation: angle }]);
+      setElements([...elements, { id, x: snappedPosition.x, y: snappedPosition.y, type: toolInHand, orientation: angle, range: toolInHand === 'sensor' ? 50 : undefined }]);
       setToolInHand(null); // Réinitialiser l'élément en main
     } else {
       setCurrentLine({ startX: x, startY: y, endX: x, endY: y });
@@ -177,16 +255,20 @@ const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
     const y = e.clientY - rect.top;
     const type = e.dataTransfer.getData('elementType');
 
-    const { snappedPosition, angle } = snapToWall(x, y, lines);
+    const { snappedPosition, angle } = snapToWall(x, y, lines, type);
     const id = `${type}-${elements.length + 1}`; // Générer un identifiant unique
-    setElements([...elements, { id, x: snappedPosition.x, y: snappedPosition.y, type, orientation: angle }]);
+    setElements([...elements, { id, x: snappedPosition.x, y: snappedPosition.y, type, orientation: angle, range: type === 'sensor' ? 50 : undefined }]);
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
   };
 
-  const snapToWall = (x, y, lines, threshold = 50) => {
+  const snapToWall = (x, y, lines, type, threshold = 50) => {
+    if (type !== 'door' && type !== 'window') {
+      return { snappedPosition: { x, y }, angle: 0 };
+    }
+
     let closestPoint = { x, y };
     let closestAngle = 0;
     let minDistance = Infinity;
