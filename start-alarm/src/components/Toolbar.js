@@ -2,9 +2,9 @@ import React from 'react';
 
 const Toolbar = ({ setToolInHand }) => {
   const elements = [
-    { id: 'sensor', label: 'Capteur' },
-    { id: 'door', label: 'Porte' },
-    { id: 'window', label: 'Fenêtre' },
+    { id: 'sensor', label: 'Capteur', range: 500, stats: 'Distance de détection: 10m' },
+    { id: 'door', label: 'Porte', stats: 'Largeur: 1m' },
+    { id: 'window', label: 'Fenêtre', stats: 'Largeur: 1.5m' },
   ];
 
   const handleDragStart = (e, type) => {
@@ -28,6 +28,7 @@ const Toolbar = ({ setToolInHand }) => {
             style={styles.listItem}
           >
             {el.label}
+            <div style={styles.stats}>{el.stats}</div>
           </li>
         ))}
       </ul>
@@ -58,6 +59,11 @@ const styles = {
     borderRadius: '5px',
     textAlign: 'center',
     cursor: 'grab',
+  },
+  stats: {
+    marginTop: '5px',
+    fontSize: '12px',
+    color: '#555',
   },
 };
 
