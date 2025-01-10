@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import GridCanvas from './components/GridCanvas';
 import Toolbar from './components/Toolbar';
-import { color } from 'framer-motion';
 
 const Simulateur = () => {
   const [tool] = useState('wall'); // Outil sélectionné (exemple)

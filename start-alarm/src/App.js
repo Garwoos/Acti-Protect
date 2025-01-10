@@ -12,9 +12,8 @@ function App() {
       <div className="App">
         {/* Définir les routes */}
         <Routes>
-          {/* Rediriger automatiquement vers /login */}
-          <Route path="/" element={<Navigate to="/login" />} /> 
-
+          {/* Rediriger automatiquement vers /accueil */}
+          <Route path="/" element={<Navigate to="/accueil" />} /> 
           {/* Route pour la page de login */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

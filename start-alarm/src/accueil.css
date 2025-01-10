@@ -3,7 +3,7 @@ body{
     background-color: #0b1926;
 }
 
-.accueil-container {
+.accueil-container1 {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -15,6 +15,7 @@ body{
   }
   
   .accueil-header {
+    margin-top: 2rem;
     color: white;
     justify-content: center;
     align-items: center;
@@ -86,32 +87,45 @@ body{
     color: white;
   }
 
-  .btn {
-    display: inline-block;
-    padding: 10px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    text-decoration: none;
-    border-radius: 4px;
+  .accueil-container2-bg, .accueil-container3-bg {
+    background-color: #070f17;;
+  }
+
+  .accueil-container2 {
+    display: flex;
+    align-items: center;
+    justify-content: space;
+    min-height: 100vh;
+    color: white;
+    font-family: Arial, sans-serif;
     text-align: center;
   }
-  
-  .btn-primary {
-    background-color: #0073af;
+
+.accueil-container3 {
+    display: flex;
+    flex-direction: row; /* Organisation des enfants en colonne */
+    justify-content: flex-start; /* Aligne les enfants en haut du conteneur */
+    min-height: 100vh; /* Assurez-vous que le conteneur occupe toute la hauteur */
+    padding-top: 0; /* Supprime tout padding supérieur */
+    margin: 0; /* Supprime toute marge par défaut */
     color: white;
+}
+  .accueil-about, .accueil-about2 {
+    justify-content: center;
+    width: 50%;
   }
-  
-  .btn-primary:hover {
-    background-color: #005f8c;
+
+  .accueil-about p , .accueil-about2 p{
+    margin: 0 5rem 1rem 5rem;
   }
-  
-  .btn-secondary {
-    background-color: #ff6e00;
-    color: white;
+
+  .accueil-about-img, .accueil-about-img2 {
+    width: 50%;
+    border-radius: 50%;
   }
-  
-  .btn-secondary:hover {
-    background-color: #e26404;
+
+  .accueil-about-img, .accueil-about-img2 img {
+    margin-top: 5rem;
   }
   
   .accueil-footer {
