@@ -28,7 +28,6 @@ const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
 
     const resizeCanvas = () => {
       canvas.width = canvas.parentElement.clientWidth;
@@ -52,7 +51,8 @@ const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+    
+    
     // Définir les propriétés de dessin pour la grille
     ctx.strokeStyle = '#ddd';
     ctx.lineWidth = 1;
@@ -130,73 +130,75 @@ const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
 
   const drawDetectionCircle = (ctx, element) => {
     const { x, y, range } = element;
-  
+
     // Commencer à dessiner la zone de détection
     ctx.save();
     ctx.beginPath();
     ctx.arc(x, y, range, 0, 2 * Math.PI, false);
     ctx.fillStyle = 'rgba(0, 255, 0, 0.2)';
     ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = 'green';
-    ctx.stroke();
     ctx.restore();
-  
+
     // Supprimer les parties du cercle bloquées par les murs
     lines.forEach((line) => {
-      blockDetectionByWall(ctx, x, y, range, line);
+        blockDetectionByWall(ctx, x, y, range, line);
     });
-  };
-  
-  // Fonction pour bloquer une partie de la zone de détection par un mur
-  const blockDetectionByWall = (ctx, cx, cy, range, line) => {
+};
+
+// Fonction pour bloquer une partie de la zone de détection par un mur
+const blockDetectionByWall = (ctx, cx, cy, range, line) => {
     const { startX, startY, endX, endY } = line;
-  
-    // Calculer les points d'intersection du mur avec le cercle
+
+    // Calculer les points d'intersection
     const intersections = getCircleLineIntersections(cx, cy, range, startX, startY, endX, endY);
-  
-    if (intersections.length > 0) {
-      intersections.forEach(([ix, iy]) => {
+
+    if (intersections.length === 2) {
+        const [start, end] = intersections.map(([ix, iy]) => {
+            return Math.atan2(iy - cy, ix - cx);
+        });
+
+        // Dessiner la partie bloquée (transparente)
         ctx.save();
         ctx.beginPath();
-        ctx.moveTo(cx, cy); // Centre du capteur
-        ctx.lineTo(ix, iy); // Intersection avec le mur
-        ctx.clip();
-        ctx.clearRect(cx - range, cy - range, range * 2, range * 2);
+        ctx.arc(cx, cy, range, start, end, false); // Dessiner l'arc entre les angles start et end
+        ctx.lineTo(endX, endY); // Ligne droite à partir de l'angle de fin jusqu'au mur
+        ctx.lineTo(startX, startY); // Ligne droite à partir de l'angle de début jusqu'au mur
+        ctx.closePath();
+        
+        // Utiliser l'opération 'destination-out' pour rendre la partie noire transparente
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fillStyle = 'black';
+        ctx.fill();
         ctx.restore();
-      });
+        
+        // Réinitialiser l'opération de composition
+        ctx.globalCompositeOperation = 'source-over';
     }
-  };
+};
 
   const getCircleLineIntersections = (cx, cy, radius, x1, y1, x2, y2) => {
     const dx = x2 - x1;
     const dy = y2 - y1;
-  
-    const a = dx * dx + dy * dy;
-    const b = 2 * (dx * (x1 - cx) + dy * (y1 - cy));
-    const c = (x1 - cx) * (x1 - cx) + (y1 - cy) * (y1 - cy) - radius * radius;
-  
-    const det = b * b - 4 * a * c;
+    const A = dx * dx + dy * dy;
+    const B = 2 * (dx * (x1 - cx) + dy * (y1 - cy));
+    const C = (x1 - cx) * (x1 - cx) + (y1 - cy) * (y1 - cy) - radius * radius;
+    const det = B * B - 4 * A * C;
+
     if (det < 0) {
-      // Pas d'intersection
       return [];
+    } else {
+      const t1 = (-B + Math.sqrt(det)) / (2 * A);
+      const t2 = (-B - Math.sqrt(det)) / (2 * A);
+      const intersections = [];
+      if (t1 >= 0 && t1 <= 1) {
+        intersections.push([x1 + t1 * dx, y1 + t1 * dy]);
+      }
+      if (t2 >= 0 && t2 <= 1) {
+        intersections.push([x1 + t2 * dx, y1 + t2 * dy]);
+      }
+      return intersections;
     }
-  
-    const t1 = (-b + Math.sqrt(det)) / (2 * a);
-    const t2 = (-b - Math.sqrt(det)) / (2 * a);
-  
-    const intersections = [];
-  
-    if (t1 >= 0 && t1 <= 1) {
-      intersections.push([x1 + t1 * dx, y1 + t1 * dy]);
-    }
-    if (t2 >= 0 && t2 <= 1) {
-      intersections.push([x1 + t2 * dx, y1 + t2 * dy]);
-    }
-  
-    return intersections;
   };
-  
   
 
   const eraseWallPart = (ctx, element) => {
