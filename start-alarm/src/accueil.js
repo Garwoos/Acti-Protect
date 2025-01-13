@@ -2,11 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
 import './accueil.css';
+import NavBar from './navBar';
 
 const Accueil = () => {
   const { ref: container2Ref, inView } = useInView({ triggerOnce: true });
@@ -20,22 +17,7 @@ const Accueil = () => {
   return (
     <div className="accueil-main">
       <div className="accueil-navbar">
-        <Navbar expand="lg" className="custom-navbar">
-          <Container className='navbar-container'>
-            <Navbar.Brand href="/accueil">StartAlarm</Navbar.Brand>
-            <Navbar.Collapse id="basic-navbar-nav">
-              <Nav className="me-auto">
-                <Nav.Link href="/accueil">Accueil</Nav.Link>
-                <Nav.Link href="#link">Parrainer</Nav.Link>
-                <NavDropdown title="Configurateur" id="basic-nav-dropdown"  className='custom-dropdown'>
-                  <NavDropdown.Item href="#action/3.1">Dessiner Mes Plans</NavDropdown.Item>
-                  <NavDropdown.Item href="#action/3.2">Consulter Mes Plans</NavDropdown.Item>
-                </NavDropdown>
-                <Nav.Link href="/login">Se Connecter</Nav.Link>
-              </Nav>
-            </Navbar.Collapse>
-          </Container>
-        </Navbar>
+        <NavBar />
       </div>
       <div className="accueil-container1">
       {/* Le MENU de navigation */}
@@ -112,7 +94,6 @@ const Accueil = () => {
           </div>
         </motion.div>
       </section>
-
       <footer className="accueil-footer">
         <p>&copy; 2025 StartAlarm. Tout droits réservés.</p>
       </footer>

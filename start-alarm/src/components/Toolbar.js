@@ -1,4 +1,5 @@
 import React from 'react';
+import './Toolbar.css';
 
 const Toolbar = ({ setToolInHand }) => {
   const elements = [
@@ -16,35 +17,47 @@ const Toolbar = ({ setToolInHand }) => {
   };
 
   return (
-    <div style={styles.toolbar}>
-      <h2>Éléments</h2>
-      <ul style={styles.list}>
-        {elements.map((el) => (
-          <li
-            key={el.id}
-            draggable
-            onDragStart={(e) => handleDragStart(e, el.id)}
-            onClick={() => handleClick(el.id)}
-            style={styles.listItem}
-          >
-            {el.label}
-            <div style={styles.stats}>{el.stats}</div>
-          </li>
-        ))}
-      </ul>
+    <div style={styles.toolbarContainer}>
+      <div style={styles.toolbarSpacing}>
+      </div>
+      <div style={styles.toolbar}>
+        <h2>Éléments</h2>
+        <ul style={styles.list}>
+          {elements.map((el) => (
+            <li
+              key={el.id}
+              draggable
+              onDragStart={(e) => handleDragStart(e, el.id)}
+              onClick={() => handleClick(el.id)}
+              style={styles.listItem}
+            >
+              {el.label}
+              <div style={styles.stats}>{el.stats}</div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
 
 const styles = {
+  toolbarContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  toolbarSpacing: {
+    width: '80%',
+  },
   toolbar: {
-    width: '300px',
-    backgroundColor: '#f4f4f4',
-    padding: '20px',
-    borderLeft: '1px solid #ddd',
-    position: 'fixed',
+    width: '20%',
+    backgroundColor: '#070f17',
+    padding: '1rem',
+    position: 'absolute',
     right: 0,
-    top: 0,
+    top: 64,
     height: '100vh',
     overflowY: 'auto',
   },
@@ -55,7 +68,7 @@ const styles = {
   listItem: {
     margin: '10px 0',
     padding: '10px',
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#070f17',
     borderRadius: '5px',
     textAlign: 'center',
     cursor: 'grab',
