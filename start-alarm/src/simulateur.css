@@ -1,0 +1,36 @@
+.simulateur-container {
+    flex-direction: row;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+}
+
+.simulateur-title {
+    margin-top: 0;
+    padding: 1rem;
+    position: absolute;
+    width: 80%;
+    text-align: center;
+    background-color: #070f17;
+    z-index: 1;
+}
+
+.simulateur-grid-container {
+    width: 80%;
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.simulateur-toolbar {
+    width: 20%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    color: white;
+    background-color: #070f17;
+}

@@ -4,14 +4,16 @@ body{
 }
 
 .accueil-container1 {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 100vh;
-    color: #333;
-    font-family: Arial, sans-serif;
-    text-align: center;
+    min-width: 100%; /* 100% de la largeur de la fenêtre */
+    height: 100vh; /* 100% de la hauteur de la fenêtre */
+    display: flex; /* Flexbox pour un positionnement facile des enfants */
+    flex-direction: column; /* Orientation verticale */
+    justify-content: center; /* Centrer verticalement les enfants */
+    align-items: center; /* Centrer horizontalement les enfants */
+    background-color: #070f17; /* Optionnel : couleur de fond */
+    margin: 0; /* Supprime les marges par défaut */
+    padding: 0; /* Supprime les espaces internes */
+    box-sizing: border-box; /* Inclut les bordures et le padding dans les dimensions */
   }
   
   .accueil-header {
@@ -41,7 +43,6 @@ body{
     border-radius: 30px;
     cursor: pointer;
   }
-  
 
   .btn-conf a {
     color: white;
@@ -96,6 +97,7 @@ body{
     align-items: center;
     justify-content: space;
     min-height: 100vh;
+    min-width: 100%;
     color: white;
     font-family: Arial, sans-serif;
     text-align: center;
@@ -106,6 +108,7 @@ body{
     flex-direction: row; /* Organisation des enfants en colonne */
     justify-content: flex-start; /* Aligne les enfants en haut du conteneur */
     min-height: 100vh; /* Assurez-vous que le conteneur occupe toute la hauteur */
+    min-width: 100%;
     padding-top: 0; /* Supprime tout padding supérieur */
     margin: 0; /* Supprime toute marge par défaut */
     color: white;
@@ -126,93 +129,15 @@ body{
 
   .accueil-about-img, .accueil-about-img2 img {
     margin-top: 5rem;
+    user-select: none;
+    pointer-events: none;
   }
   
   .accueil-footer {
     margin-top: 20px;
     font-size: 14px;
     color: #777;
-  }
-
-/* MENU NAVBAR PRINCIPAL */
-
-.custom-navbar {
-    background-color: #343a40; /* Couleur sombre pour la navbar */
-    height: 4rem;
-  }
-
-  .navbar-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .me-auto {
-    margin-left: auto;
-    display: flex;  
-    margin-right: 3rem;
-  }
-
-  .navbar-brand {
-    margin-left: 1rem;
-  }
-
-  .nav-link {
-    height: 4rem;
-    display: flex;
-    align-items: center;
     justify-content: center;
-  }
-
-  #basic-nav-dropdown.dropdown-toggle.nav-link a{
-    width: 10rem;
-  }
-  
-  .custom-navbar .navbar-brand {
-    color: #ffffff; /* Couleur du texte de la marque */
-    font-size: 1.5rem; /* Taille du texte de la marque */
-    font-weight: bold;
-    text-decoration: none;
-  }
-
-  .custom-dropdown {
-    display: block;
-  }
-
-  #basic-navbar-nav {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-  }
-  
-  .custom-dropdown .dropdown-menu {
-    background-color: #343a40; /* Fond du menu déroulant */
-    border: none; /* Pas de bordure */
-  }
-
-  .custom-navbar .nav-link,
-  .custom-navbar .dropdown-toggle {
-    color: #ffffff; /* Couleur des liens */
-    font-size: 1rem; /* Taille de police des liens */
-    text-decoration: none;
-    width: 10rem;
-  }
-  
-  .custom-navbar .nav-link:hover,
-  .custom-navbar .dropdown-toggle:hover {
-    color: #9fa2a5; /* Couleur des liens au survol */
-  }
-  
-  .custom-navbar .dropdown-menu {
-    background-color: #343a40; /* Fond du menu déroulant */
-    border: none; /* Pas de bordure */
-  }
-  
-  .custom-navbar .dropdown-item {
-    color: #ffffff; /* Couleur des éléments du menu */
-  }
-  
-  .custom-navbar .dropdown-item:hover {
-    background-color: #495057; /* Fond au survol dans le menu */
   }
   

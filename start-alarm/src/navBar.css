@@ -1,0 +1,119 @@
+.custom-navbar {
+    background-color: #343a40; /* Couleur sombre pour la navbar */
+    height: 4rem;
+    overflow: visible;
+  }
+
+  .navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
+
+  .me-auto {
+    margin-left: auto;
+    display: flex;  
+    margin-right: 3rem;
+  }
+
+  .navbar-brand {
+    margin-left: 1rem;
+  }
+
+  .nav-link {
+    height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #basic-nav-dropdown.dropdown-toggle.nav-link a{
+    width: 10rem;
+  }
+  
+  .custom-navbar .navbar-brand {
+    color: #ffffff; /* Couleur du texte de la marque */
+    font-size: 1.5rem; /* Taille du texte de la marque */
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  .custom-dropdown {
+    display: block;
+    position: relative;
+  }
+
+  #basic-navbar-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .custom-dropdown .dropdown-menu {
+    position: absolute; /* Place le menu en dehors du flux normal */
+    top: 100%; /* Positionne le menu juste sous l'élément parent */
+    left: 0; /* Aligne à gauche */
+    z-index: 1050; /* Priorité d'affichage supérieure */
+    background-color: #343a40; /* Fond du menu */
+    border: none;
+    opacity: 0; /* Initialement invisible */
+    transform: scaleY(0); /* Réduit en hauteur */
+    transform-origin: top; /* Animation partant du haut */
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    display: block; /* Assure la visibilité de l'animation */
+    width: 200px; /* Facultatif : définit la largeur du menu */
+    min-width: 10rem; /* Largeur minimale pour le menu */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Ombre pour un effet visuel */
+  }
+
+  .custom-navbar .nav-link,
+  .custom-navbar .dropdown-toggle {
+    color: #ffffff; /* Couleur des liens */
+    font-size: 1rem; /* Taille de police des liens */
+    text-decoration: none;
+    width: 10rem;
+  }
+  
+  .custom-navbar .nav-link:hover,
+  .custom-navbar .dropdown-toggle:hover {
+    color: #9fa2a5; /* Couleur des liens au survol */
+  }
+  
+  .custom-navbar .dropdown-menu {
+    background-color: #343a40; /* Fond du menu déroulant */
+    border: none; /* Pas de bordure */
+    border-radius: 0px 0px 20px 20px;
+    width: 10rem;
+
+  }
+
+  .custom-navbar .dropdown-menu .a-circle {
+    border-radius: 0px 0px 20px 20px;
+  }
+
+  .custom-navbar .dropdown-menu a {
+    text-decoration: none;
+  }
+  
+  .custom-navbar .dropdown-item {
+    color: #ffffff; /* Couleur des éléments du menu */
+  }
+  
+  .custom-navbar .dropdown-item:hover {
+    background-color: #495057; /* Fond au survol dans le menu */
+  }
+
+  .custom-dropdown .dropdown-item {
+    color: #ffffff; /* Couleur du texte */
+    padding: 0.5rem 1rem; /* Espacement */
+    display: block; /* Les empile verticalement */
+    text-align: center;
+}
+
+/* Animation active (lorsque le dropdown est ouvert) */
+.show .dropdown-menu {
+  opacity: 1; /* Visible */
+  transform: scaleY(1); /* Pleine hauteur */
+
+}
