@@ -5,6 +5,10 @@
     display: flex;
 }
 
+.simulateur-navbar {
+    z-index: 2;
+}
+
 .simulateur-title {
     margin-top: 0;
     padding: 1rem;
@@ -12,7 +16,6 @@
     width: 80%;
     text-align: center;
     background-color: #070f17;
-    z-index: 1;
 }
 
 .simulateur-grid-container {

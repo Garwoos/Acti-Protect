@@ -1,8 +1,18 @@
 .custom-navbar {
-    background-color: #343a40; /* Couleur sombre pour la navbar */
-    height: 4rem;
-    overflow: visible;
-  }
+  background-color: #343a40; /* Couleur sombre par défaut */
+  height: 4rem;
+  overflow: visible;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  transition: background-color 0.3s ease; /* Transition fluide */
+}
+
+.custom-navbar.navbar-transparent {
+  background-color: rgba(0, 0, 0, 0.5); /* Fond transparent avec opacité */
+  backdrop-filter: blur(10px); /* Ajoute un effet de flou */
+}
 
   .navbar-container {
     display: flex;
