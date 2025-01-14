@@ -1,0 +1,48 @@
+.parrainage-content {
+    background-color: #0b1926;
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .parrainage-title {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  
+  .parrainage-text {
+    font-size: 1.2rem;
+    text-align: center;
+    margin: 1rem;
+  }
+  
+  .parrainage-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .parrainage-input {
+    width: 20rem;
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .parrainage-copy {
+    background-color: #005f8c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+  
+  .parrainage-copy:hover {
+    background-color: #014a6c;
+  }
+  

@@ -54,7 +54,7 @@ const styles = {
   toolbar: {
     width: '20%',
     backgroundColor: '#070f17',
-    padding: '1rem',
+    padding: '0rem 1rem 0rem 1rem',
     position: 'absolute',
     right: 0,
     top: 64,

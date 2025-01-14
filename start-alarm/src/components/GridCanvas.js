@@ -317,7 +317,7 @@ const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       <canvas
         ref={canvasRef}
-        style={{ border: '1px solid black', display: 'block', backgroundColor: '#fff' }}
+        style={{ border: '1px solid black', display: 'block', backgroundColor: '#fff', marginTop: 64 }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}

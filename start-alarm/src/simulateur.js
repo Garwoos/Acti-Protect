@@ -10,9 +10,10 @@ const Simulateur = () => {
 
   return (
     <div className="main-container">
-      <NavBar />
+      <div className='simulateur-navbar'>
+        <NavBar />
+      </div>
       <div className='simulateur-container'>
-        <h1 className='simulateur-title'>Configurateur</h1>
         <div className='simulateur-grid-container'>
           <GridCanvas tool={tool} toolInHand={toolInHand} setToolInHand={setToolInHand} />
         </div>
