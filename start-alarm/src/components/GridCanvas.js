@@ -45,7 +45,7 @@ const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
     return () => {
       window.removeEventListener('resize', resizeCanvas);
     };
-  }, []);
+  }, []); 
 
   const drawGrid = () => {
     const canvas = canvasRef.current;

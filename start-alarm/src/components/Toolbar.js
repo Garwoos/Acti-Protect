@@ -1,12 +1,31 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './Toolbar.css';
 
 const Toolbar = ({ setToolInHand }) => {
-  const elements = [
+  const [elements, setElements] = useState([
     { id: 'sensor', label: 'Capteur', range: 500, stats: 'Distance de détection: 10m' },
     { id: 'door', label: 'Porte', stats: 'Largeur: 1m' },
     { id: 'window', label: 'Fenêtre', stats: 'Largeur: 1.5m' },
-  ];
+  ]);
+
+  useEffect(() => {
+    const fetchEquipments = async () => {
+      try {
+        const response = await fetch('/api/equipements');
+        const data = await response.json();
+        const formattedData = data.map(equipment => ({
+          id: equipment.id_equipement,
+          label: equipment.nom_equipement,
+          stats: `Catégorie: ${equipment.categorie}, Prix: ${equipment.prix}€`,
+        }));
+        setElements(prevElements => [...prevElements, ...formattedData]);
+      } catch (error) {
+        console.error('Error fetching equipments:', error);
+      }
+    };
+
+    fetchEquipments();
+  }, []);
 
   const handleDragStart = (e, type) => {
     e.dataTransfer.setData('elementType', type);
