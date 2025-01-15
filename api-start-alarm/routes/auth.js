@@ -1,7 +1,13 @@
+require('dotenv').config(); // Charger les variables d'environnement
+
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const connection = require('../db');
+
+const secretKey = process.env.SECRET_KEY; // Utiliser la clé secrète depuis les variables d'environnement
+const refreshSecretKey = process.env.REFRESH_SECRET_KEY; // Clé secrète pour les jetons de rafraîchissement
 
 router.post('/login', (req, res) => {
   const { email, password } = req.body;
@@ -26,7 +32,17 @@ router.post('/login', (req, res) => {
         return res.status(500).send('Error comparing passwords');
       }
       if (isMatch) {
-        return res.status(200).send('Login successful');
+        const accessToken = jwt.sign(
+          { id: user.id_utilisateur, email: user.email },
+          secretKey,
+          { expiresIn: '3m' } // Jeton d'accès expire après 3 minutes
+        );
+        const refreshToken = jwt.sign(
+          { id: user.id_utilisateur, email: user.email },
+          refreshSecretKey,
+          { expiresIn: '7d' } // Jeton de rafraîchissement expire après 7 jours
+        );
+        return res.status(200).json({ accessToken, refreshToken });
       } else {
         return res.status(401).send('Invalid password');
       }

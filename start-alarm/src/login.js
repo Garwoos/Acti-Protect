@@ -1,28 +1,50 @@
 import React, { useState } from 'react';
 import './login.css'; // Facultatif, pour styliser la page
-import { Link } from 'react-router-dom';
-import {motion} from 'framer-motion';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Vous pouvez ajouter une logique de validation ou d'authentification ici
-    console.log('Email:', email, 'Password:', password);
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('accessToken', data.accessToken); // Stocker le jeton d'accès
+        localStorage.setItem('refreshToken', data.refreshToken); // Stocker le jeton de rafraîchissement
+        navigate('/simulateur'); // Rediriger vers le simulateur
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message);
+      }
+    } catch (error) {
+      setError('Erreur de connexion');
+    }
   };
+
   return (
     <div className='login-container'>
       <div className="login-container-Left">
-        <motion.h1 className='login-text' initial={{x:50,opacity:0}} animate={{x:0,opacity:1}} transition={{duration:1.5,ease:"easeInOut"}}>Bienvenue</motion.h1>
-        <motion.h2 className='login-subtext' initial={{x:-50,opacity:0}} animate={{x:0,opacity:1}} transition={{duration:1.5,ease:"easeInOut"}}>Sur notre site</motion.h2>
+        <motion.h1 className='login-text' initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 1.5, ease: "easeInOut" }}>Bienvenue</motion.h1>
+        <motion.h2 className='login-subtext' initial={{ x: -50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 1.5, ease: "easeInOut" }}>Sur notre site</motion.h2>
       </div>
 
-
       <div className="login-container-Right">
-        <motion.form className="login-form" onSubmit={handleSubmit} initial={{y:50,opacity:0}} animate={{y:0,opacity:1}} transition={{duration:1.5,ease:"easeInOut"}}>
-          <h2 className>Se Connecter</h2>
+        <motion.form className="login-form" onSubmit={handleSubmit} initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1.5, ease: "easeInOut" }}>
+          <h2>Se Connecter</h2>
+          {error && <p style={{ color: 'red' }}>{error}</p>}
           <div>
             <input
               type="email"

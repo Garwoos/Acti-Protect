@@ -7,6 +7,7 @@ import Accueil from './accueil'; // Assurez-vous que le chemin est correct
 import Simulateur from './simulateur';
 import Parrainage from './parrainage';
 import Paiement from './paiement';
+import PrivateRoute from './PrivateRoute'; // Importez le composant PrivateRoute
 
 function App() {
   return (
@@ -20,7 +21,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/accueil" element={<Accueil />} />
-          <Route path="/simulateur" element={<Simulateur />} />
+          <Route path="/simulateur" element={<PrivateRoute><Simulateur /></PrivateRoute>} /> {/* Protégez la route */}
           <Route path="/parrainage" element={<Parrainage />} />
           <Route path="/paiement" element={<Paiement />} />
         </Routes>
@@ -30,4 +31,3 @@ function App() {
 }
 
 export default App;
-
