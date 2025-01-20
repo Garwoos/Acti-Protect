@@ -6,11 +6,12 @@ import { motion } from 'framer-motion';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -20,17 +21,29 @@ const Login = () => {
         body: JSON.stringify({ email, password }),
       });
 
+      const contentType = response.headers.get('content-type');
+      const responseText = await response.text(); // Lire la réponse en tant que texte brut
+
       if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('accessToken', data.accessToken); // Stocker le jeton d'accès
-        localStorage.setItem('refreshToken', data.refreshToken); // Stocker le jeton de rafraîchissement
-        navigate('/simulateur'); // Rediriger vers le simulateur
+        if (contentType && contentType.includes('application/json')) {
+          const data = JSON.parse(responseText); // Analyser le texte brut en JSON
+          localStorage.setItem('token', data.token); // Stockez le token dans le localStorage
+          navigate('/simulateur'); // Redirigez l'utilisateur vers la page simulateur
+        } else {
+          setMessage('Erreur: Réponse non JSON reçue');
+          console.error('Réponse non JSON:', responseText); // Afficher le texte brut de la réponse
+        }
       } else {
-        const errorData = await response.json();
-        setError(errorData.message);
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = JSON.parse(responseText); // Analyser le texte brut en JSON
+          setMessage(`Erreur: ${errorData.message}`);
+        } else {
+          setMessage('Erreur: Réponse non JSON reçue');
+          console.error('Réponse non JSON:', responseText); // Afficher le texte brut de la réponse
+        }
       }
     } catch (error) {
-      setError('Erreur de connexion');
+      setMessage(`Erreur: ${error.message}`);
     }
   };
 
@@ -43,8 +56,7 @@ const Login = () => {
 
       <div className="login-container-Right">
         <motion.form className="login-form" onSubmit={handleSubmit} initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1.5, ease: "easeInOut" }}>
-          <h2>Se Connecter</h2>
-          {error && <p style={{ color: 'red' }}>{error}</p>}
+          <h2 className>Se Connecter</h2>
           <div>
             <input
               type="email"
@@ -72,6 +84,7 @@ const Login = () => {
             <Link to="/register">Pas de compte ? Créer un compte</Link>
           </div>
           <button type="submit">Connexion</button>
+          {message && <p>{message}</p>}
         </motion.form>
       </div>
     </div>
