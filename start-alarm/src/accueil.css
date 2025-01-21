@@ -96,7 +96,7 @@ body{
     display: flex;
     align-items: center;
     justify-content: space;
-    min-height: 100vh;
+    min-height: 100%;
     min-width: 100%;
     color: white;
     font-family: Arial, sans-serif;
@@ -127,7 +127,7 @@ body{
     border-radius: 50%;
   }
 
-  .accueil-about-img, .accueil-about-img2 img {
+  .accueil-about-img img {
     margin-top: 5rem;
     user-select: none;
     pointer-events: none;
@@ -141,3 +141,6 @@ body{
     align-items: center;
   }
   
+ .accueil-carousel {
+    width: 100%;
+ }

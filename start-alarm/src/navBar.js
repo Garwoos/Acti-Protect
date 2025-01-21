@@ -40,7 +40,7 @@ const NavBar = () => {
             id="basic-nav-dropdown"
             className="custom-dropdown"
           >
-            <NavDropdown.Item href="/simulateur">
+            <NavDropdown.Item href="/simulateur-specs">
               Dessiner Mes Plans
             </NavDropdown.Item>
             <NavDropdown.Item className="a-circle" href="/simulateur">
