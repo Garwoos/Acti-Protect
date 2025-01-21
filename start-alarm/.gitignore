@@ -21,3 +21,6 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# filepath: /d:/Users/Sam/Documents/Acti-Protect/Acti-Protect/.gitignore
+.env
