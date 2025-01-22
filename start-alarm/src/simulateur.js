@@ -5,8 +5,18 @@ import './simulateur.css';
 import NavBar from './navBar';
 
 const Simulateur = () => {
-  const [tool] = useState('wall'); // Outil sélectionné (exemple)
   const [toolInHand, setToolInHand] = useState(null); // Élément en main
+  const [step, setStep] = useState(1); // Étape actuelle
+
+  const nextStep = () => {
+    setStep(step + 1);
+  };
+
+  const prevStep = () => {
+    if (step > 1) {
+      setStep(step - 1);
+    }
+  };
 
   return (
     <div className="main-container">
@@ -15,10 +25,10 @@ const Simulateur = () => {
       </div>
       <div className='simulateur-container'>
         <div className='simulateur-grid-container'>
-          <GridCanvas tool={tool} toolInHand={toolInHand} setToolInHand={setToolInHand} />
+          <GridCanvas toolInHand={toolInHand} setToolInHand={setToolInHand} prevStep={prevStep} step={step} />
         </div>
         <div className='simulateur-toolbar'>
-          <Toolbar setToolInHand={setToolInHand} />
+          <Toolbar setToolInHand={setToolInHand} nextStep={nextStep} prevStep={prevStep} step={step} />
         </div>
       </div>
     </div>

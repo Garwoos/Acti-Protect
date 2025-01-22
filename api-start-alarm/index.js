@@ -13,9 +13,6 @@ app.use(express.static(path.join(__dirname, '../build')));
 const apiRoutes = require('./apiRoutes');
 app.use('/api', apiRoutes);
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build', 'index.html'));
-});
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);

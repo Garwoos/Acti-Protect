@@ -1,34 +1,45 @@
 import React, { useRef, useEffect, useState } from 'react';
-import windowImgSrc from '../assets/window.png'; // Chemin vers l'image de la fenêtre
-import doorImgSrc from '../assets/door.png'; // Chemin vers l'image de la porte
 
-const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
+const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
   const canvasRef = useRef(null);
-  const gridSize = 50; // 1 mètre = 50px
+  const gridSize = 25; // 1 mètre = 25px
   const [lines, setLines] = useState([]); // Stocker les lignes dessinées
   const [currentLine, setCurrentLine] = useState(null);
   const [elements, setElements] = useState([]); // Stocker les éléments placés
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 }); // Position du curseur
   const [images, setImages] = useState({}); // Stocker les images préchargées
+  const [history, setHistory] = useState([]); // Historique des actions
 
   useEffect(() => {
-    // Précharger les images
-    const windowImg = new Image();
-    const doorImg = new Image();
-    windowImg.src = windowImgSrc;
-    doorImg.src = doorImgSrc;
+    const loadImages = async () => {
+      const loadedImages = {};
+      const imageIds = elements.map(el => el.id.split('-')[0]); // Récupérer les IDs des éléments sans suffixe
+      for (const id of imageIds) {
+        const img = new Image();
+        img.src = require(`../assets/ouvertures/${id}.png`);
+        await new Promise((resolve, reject) => {
+          img.onload = () => {
+            console.log(`Image ${id} loaded`);
+            loadedImages[id] = img;
+            resolve();
+          };
+          img.onerror = (error) => {
+            console.error(`Failed to load image ${id}`, error);
+            reject(error);
+          };
+        }).catch(error => {
+          console.error(`Error loading image ${id}:`, error);
+        });
+      }
+      setImages(loadedImages);
+    };
 
-    windowImg.onload = () => {
-      setImages((prevImages) => ({ ...prevImages, window: windowImg }));
-    };
-    doorImg.onload = () => {
-      setImages((prevImages) => ({ ...prevImages, door: doorImg }));
-    };
-  }, []);
+    loadImages();
+  }, [elements]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-
+    
     const resizeCanvas = () => {
       canvas.width = canvas.parentElement.clientWidth;
       canvas.height = canvas.parentElement.clientHeight;
@@ -51,7 +62,6 @@ const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
     
     // Définir les propriétés de dessin pour la grille
     ctx.strokeStyle = '#ddd';
@@ -77,7 +87,7 @@ const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
       ctx.moveTo(line.startX, line.startY);
       ctx.lineTo(line.endX, line.endY);
       ctx.strokeStyle = 'black';
-      ctx.lineWidth = 5;
+      ctx.lineWidth = line.thickness || 5;
       ctx.stroke();
     });
 
@@ -90,22 +100,18 @@ const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
       ctx.stroke();
     }
 
-    // Effacer la partie du mur collée aux éléments
-    elements.forEach((el) => {
-      if (el.type === 'door' || el.type === 'window') {
-        eraseWallPart(ctx, el);
-      }
-    });
-
     // Dessiner les éléments
     elements.forEach((el) => {
-      const img = images[el.type];
+      const img = images[el.id.split('-')[0]]; // Utiliser l'ID sans suffixe pour obtenir l'image
       if (img) {
+        console.log(`Drawing ${el.id} at (${el.x}, ${el.y}) with orientation ${el.orientation}`);
         ctx.save();
         ctx.translate(el.x, el.y);
         ctx.rotate(el.orientation * Math.PI / 180);
         ctx.drawImage(img, -25, -50, 50, 50); // Ajuster la position pour que le bas de l'image touche le mur
         ctx.restore();
+      } else {
+        console.log(`Image for ${el.id} not found`);
       }
 
       // Dessiner le cercle de détection pour les capteurs
@@ -116,14 +122,16 @@ const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
 
     // Dessiner l'élément en main sous le curseur
     if (toolInHand) {
-      const img = images[toolInHand];
+      const img = images[toolInHand.id];
       if (img) {
-        const { snappedPosition, angle } = snapToWall(cursorPosition.x, cursorPosition.y, lines, toolInHand);
+        const { snappedPosition, angle } = snapToWall(cursorPosition.x, cursorPosition.y, lines, toolInHand.type);
         ctx.save();
         ctx.translate(snappedPosition.x, snappedPosition.y);
         ctx.rotate(angle * Math.PI / 180);
         ctx.drawImage(img, -25, -50, 50, 50); // Ajuster la position pour que le bas de l'image touche le mur
         ctx.restore();
+      } else {
+        console.log(`Image for tool in hand (${toolInHand.id}) not found`);
       }
     }
   };
@@ -143,10 +151,10 @@ const GridCanvas = ({ tool, toolInHand, setToolInHand }) => {
     lines.forEach((line) => {
         blockDetectionByWall(ctx, x, y, range, line);
     });
-};
+  };
 
-// Fonction pour bloquer une partie de la zone de détection par un mur
-const blockDetectionByWall = (ctx, cx, cy, range, line) => {
+  // Fonction pour bloquer une partie de la zone de détection par un mur
+  const blockDetectionByWall = (ctx, cx, cy, range, line) => {
     const { startX, startY, endX, endY } = line;
 
     // Calculer les points d'intersection
@@ -174,7 +182,7 @@ const blockDetectionByWall = (ctx, cx, cy, range, line) => {
         // Réinitialiser l'opération de composition
         ctx.globalCompositeOperation = 'source-over';
     }
-};
+  };
 
   const getCircleLineIntersections = (cx, cy, radius, x1, y1, x2, y2) => {
     const dx = x2 - x1;
@@ -199,7 +207,6 @@ const blockDetectionByWall = (ctx, cx, cy, range, line) => {
       return intersections;
     }
   };
-  
 
   const eraseWallPart = (ctx, element) => {
     const { x, y, orientation } = element;
@@ -214,17 +221,43 @@ const blockDetectionByWall = (ctx, cx, cy, range, line) => {
     drawGrid();
   }, [lines, currentLine, elements, toolInHand, cursorPosition, images]);
 
+  // Ajoutez cette fonction pour déterminer l'épaisseur selon le type de mur
+  const getLineThickness = (wallLabel) => {
+    switch (wallLabel) {
+      case 'Mur':
+        return 5;
+      case 'Mur Mitoyen':
+        return 10;
+      case 'Cloison':
+        return 3;
+      default:
+        return 5;
+    }
+  };
+
   const handleMouseDown = (e) => {
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    if (toolInHand) {
-      const { snappedPosition, angle } = snapToWall(x, y, lines, toolInHand);
-      const id = `${toolInHand}-${elements.length + 1}`; // Générer un identifiant unique
-      setElements([...elements, { id, x: snappedPosition.x, y: snappedPosition.y, type: toolInHand, orientation: angle, range: toolInHand === 'sensor' ? 50 : undefined }]);
+    // Vérifier si un mur est en main
+    if (toolInHand && step === 1) {
+      // Cliquez pour commencer un mur
+      setCurrentLine({
+        startX: x,
+        startY: y,
+        endX: x,
+        endY: y,
+        thickness: getLineThickness(toolInHand.label),
+      });
+    } else if (toolInHand) {
+      const { snappedPosition, angle } = snapToWall(x, y, lines, toolInHand.type);
+      const id = `${toolInHand.id}`; // Utiliser uniquement l'ID sans suffixe
+      const newElement = { id, x: snappedPosition.x, y: snappedPosition.y, type: toolInHand.type, orientation: angle, range: toolInHand.type === 'sensor' ? 50 : undefined };
+      setElements([...elements, newElement]);
+      setHistory([...history, { type: 'add', element: newElement }]); // Ajouter à l'historique
       setToolInHand(null); // Réinitialiser l'élément en main
-    } else {
+    } else if (step === 1) { // Vérifiez l'étape actuelle avant de permettre la pose de murs
       setCurrentLine({ startX: x, startY: y, endX: x, endY: y });
     }
   };
@@ -245,7 +278,14 @@ const blockDetectionByWall = (ctx, cx, cy, range, line) => {
   const handleMouseUp = () => {
     if (currentLine) {
       const snappedEnd = snapToGrid(currentLine.endX, currentLine.endY, lines);
-      setLines([...lines, { ...currentLine, endX: snappedEnd.x, endY: snappedEnd.y }]);
+      const newLine = {
+        ...currentLine,
+        endX: snappedEnd.x,
+        endY: snappedEnd.y,
+        thickness: currentLine.thickness,
+      };
+      setLines([...lines, newLine]);
+      setHistory([...history, { type: 'draw', line: newLine }]); // Ajouter à l'historique
       setCurrentLine(null);
     }
   };
@@ -258,7 +298,7 @@ const blockDetectionByWall = (ctx, cx, cy, range, line) => {
     const type = e.dataTransfer.getData('elementType');
 
     const { snappedPosition, angle } = snapToWall(x, y, lines, type);
-    const id = `${type}-${elements.length + 1}`; // Générer un identifiant unique
+    const id = `${type}`; // Utiliser uniquement l'ID sans suffixe
     setElements([...elements, { id, x: snappedPosition.x, y: snappedPosition.y, type, orientation: angle, range: type === 'sensor' ? 50 : undefined }]);
   };
 
@@ -315,8 +355,21 @@ const blockDetectionByWall = (ctx, cx, cy, range, line) => {
     return { snappedPosition: closestPoint, angle: closestAngle };
   };
 
+  const undoLastAction = () => {
+    const lastAction = history.pop();
+    if (!lastAction) return;
+
+    if (lastAction.type === 'add') {
+      setElements(elements.filter(el => el.id !== lastAction.element.id));
+    } else if (lastAction.type === 'draw') {
+      setLines(lines.slice(0, -1));
+    }
+    setHistory(history);
+  };
+
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <button onClick={undoLastAction} style={{ position: 'absolute', bottom: 10, left: 10 }}>Undo</button>
       <canvas
         ref={canvasRef}
         style={{ border: '1px solid black', display: 'block', backgroundColor: '#fff', marginTop: 64 }}
