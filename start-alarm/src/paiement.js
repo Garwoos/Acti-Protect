@@ -1,48 +1,79 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
 import './paiement.css';
 import NavBar from './navBar';
 
-const Paiement = () => {
+const Payment = () => {
+  const [selectedMethod, setSelectedMethod] = useState('Card');
+
+  const paymentMethods = ['Card', 'Divido', 'Cash App Pay', 'Afterpay'];
+
   return (
-    <div className="paiement-main">
-      <div className="paiement-navbar">
+    <div className="payment-page">
+      <div className="payment-navbar">
         <NavBar />
-      </div>
-      <div className="paiement-content">
-        <motion.h1 
-          initial={{ opacity: 0, scale: 0.9 }} 
-          animate={{ opacity: 1, scale: 1 }} 
-          transition={{ duration: 1 }} 
-          className="paiement-title"
-        >
-          Paiement Sécurisé
-        </motion.h1>
-        <motion.form 
-          initial={{ opacity: 0, y: 30 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ duration: 1.5 }}
-          className="paiement-form"
-        >
-          <label>Nom sur la carte</label>
-          <input type="text" placeholder="Votre nom" className="paiement-input" />
-          <label>Numéro de carte</label>
-          <input type="text" placeholder="1234 5678 9012 3456" className="paiement-input" />
-          <div className="paiement-row">
-            <div>
-              <label>Date d'expiration</label>
-              <input type="text" placeholder="MM/AA" className="paiement-input" />
+      </div>  
+      <div className="payment-form">
+        <div className="payment-methods">
+          {paymentMethods.map((method) => (
+            <div
+              key={method}
+              className={`payment-method ${
+                selectedMethod === method ? 'active' : ''
+              }`}
+              onClick={() => setSelectedMethod(method)}
+            >
+              {method}
             </div>
-            <div>
-              <label>Code CVV</label>
-              <input type="text" placeholder="123" className="paiement-input" />
-            </div>
-          </div>
-          <button type="submit" className="paiement-submit">Payer</button>
-        </motion.form>
+          ))}
+        </div>
+
+        <div className="form-content">
+          {selectedMethod === 'Card' && (
+            <>
+              <div className="form-group">
+                <label>Card number</label>
+                <input
+                  type="text"
+                  placeholder="1234 1234 1234 1234"
+                  className="input-field"
+                />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Expiration</label>
+                  <input
+                    type="text"
+                    placeholder="MM / YY"
+                    className="input-field"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>CVC</label>
+                  <input type="text" placeholder="CVC" className="input-field" />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Country</label>
+                  <select className="input-field">
+                    <option>United States</option>
+                    <option>Canada</option>
+                    <option>United Kingdom</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>ZIP</label>
+                  <input type="text" placeholder="12345" className="input-field" />
+                </div>
+              </div>
+              <button className="pay-button">Pay now</button>
+            </>
+          )}
+          {/* Ajoutez des formulaires personnalisés ici pour d'autres méthodes de paiement */}
+        </div>
       </div>
     </div>
   );
 };
 
-export default Paiement;
+export default Payment;

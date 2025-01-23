@@ -7,6 +7,7 @@ import Accueil from './accueil'; // Assurez-vous que le chemin est correct
 import Simulateur from './simulateur';
 import Parrainage from './parrainage';
 import Paiement from './paiement';
+import SimulateurSpecs from './simulateur';
 import PrivateRoute from './PrivateRoute'; // Importez le composant PrivateRoute
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route path="/simulateur" element={<PrivateRoute><Simulateur /></PrivateRoute>} /> {/* Protégez la route */}
           <Route path="/parrainage" element={<Parrainage />} />
           <Route path="/paiement" element={<Paiement />} />
+          <Route path="/simulateur-specs" element={<SimulateurSpecs />} />
         </Routes>
       </div>
     </Router>

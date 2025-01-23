@@ -4,6 +4,7 @@ import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import './accueil.css';
 import NavBar from './navBar';
+import Carrousel from './carrousel';
 
 const Accueil = () => {
   const { ref: container2Ref, inView } = useInView({ triggerOnce: true });
@@ -14,6 +15,7 @@ const Accueil = () => {
       controls.start('visible');
     }
   }, [inView, controls]);
+
   return (
     <div className="accueil-main">
       <div className="accueil-navbar">
@@ -23,15 +25,18 @@ const Accueil = () => {
       {/* Le MENU de navigation */}
         <section className="accueil-content">
           <header className="accueil-header">
-            <h1 className='animated-text'>StartAlarm</h1>
+            <h1 className='animated-text'>Start-Alarm</h1>
             <h2 className='animated-subtext'>Le premier configurateur en ligne</h2>
           </header>
           <div className="accueil-features">
-            <motion.button className="btn-conf" initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1.5, ease: "easeInOut" }}>
-              <Link to="/simulateur" className="btn-link">Tester le configurateur</Link>
-            </motion.button>
+            <Link to="/simulateur-specs" className="btn-link"><motion.button className="btn-conf" initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1.5, ease: "easeInOut" }}>
+              Tester le configurateur
+            </motion.button></Link>
           </div>
         </section>
+        <div className="accueil-carousel">
+          <Carrousel />
+        </div>
       </div>
       <section className="accueil-container2-bg">
         <motion.div className="accueil-container2"
@@ -59,7 +64,7 @@ const Accueil = () => {
             </p>
           </div>
           <div className="accueil-about-img">
-            <img src="https://via.placeholder.com/300" alt="À propos de StartAlarm" />
+            <img src="https://placehold.co/400" alt="À propos de StartAlarm" />
           </div>
         </motion.div>
       </section>
@@ -75,7 +80,7 @@ const Accueil = () => {
           animate={controls}
           transition={{ duration: 1, delay: 0.5 }}>
           <div className="accueil-about-img2">
-              <img src="https://via.placeholder.com/300" alt="À propos de StartAlarm" />
+              <img src="https://placehold.co/400" alt="À propos de StartAlarm" />
           </div>
           <div className="accueil-about2">
             <h2 >À propos de StartAlarm</h2>
