@@ -73,6 +73,7 @@ const SimulateurSpecs = () => {
                   <option value="" hidden>Sélectionnez</option>
                   <option value="maison">Maison</option>
                   <option value="appartement">Appartement</option>
+                  <option value="autre">Autre</option>
                 </Form.Select>
               </Form.Group>
             </Col>
