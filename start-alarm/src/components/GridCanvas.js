@@ -108,7 +108,7 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
         ctx.save();
         ctx.translate(el.x, el.y);
         ctx.rotate(el.orientation * Math.PI / 180);
-        ctx.drawImage(img, -25, -50, 50, 50); // Ajuster la position pour que le bas de l'image touche le mur
+        ctx.drawImage(img, -25, -50, 80,80); // Ajuster la position pour que le bas de l'image touche le mur
         ctx.restore();
       } else {
         console.log(`Image for ${el.id} not found`);
@@ -128,7 +128,7 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
         ctx.save();
         ctx.translate(snappedPosition.x, snappedPosition.y);
         ctx.rotate(angle * Math.PI / 180);
-        ctx.drawImage(img, -25, -50, 50, 50); // Ajuster la position pour que le bas de l'image touche le mur
+        ctx.drawImage(img, -25, -50, 80, 80); // Ajuster la position pour que le bas de l'image touche le mur
         ctx.restore();
       } else {
         console.log(`Image for tool in hand (${toolInHand.id}) not found`);
@@ -307,8 +307,8 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
   };
 
   const snapToWall = (x, y, lines, type, threshold = 50) => {
-    if (type !== 'door' && type !== 'window') {
-      return { snappedPosition: { x, y }, angle: 0 };
+    if (type === 'sensor') {
+      return { snappedPosition: snapToGrid(x, y, lines), angle: 0 };
     }
 
     let closestPoint = { x, y };
