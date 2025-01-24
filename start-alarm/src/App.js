@@ -7,6 +7,7 @@ import Accueil from './accueil'; // Assurez-vous que le chemin est correct
 import Simulateur from './simulateur';
 import Parrainage from './parrainage';
 import Paiement from './paiement';
+import SimulateurSpecs from './simulateurSpecs';
 import PrivateRoute from './PrivateRoute'; // Importez le composant PrivateRoute
 
 function App() {
