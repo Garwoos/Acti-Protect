@@ -12,30 +12,32 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
 
   useEffect(() => {
     const loadImages = async () => {
-      const loadedImages = {};
-      const imageIds = elements.map(el => el.id.split('-')[0]); // Récupérer les IDs des éléments sans suffixe
+      const loadedImages = { ...images };
+      const imageIds = [...new Set([...elements.map(el => el.id.split('-')[0]), toolInHand?.id].filter(Boolean))]; // Inclure l'ID de l'outil en main et filtrer les valeurs falsy
       for (const id of imageIds) {
-        const img = new Image();
-        img.src = require(`../assets/ouvertures/${id}.png`);
-        await new Promise((resolve, reject) => {
-          img.onload = () => {
-            console.log(`Image ${id} loaded`);
-            loadedImages[id] = img;
-            resolve();
-          };
-          img.onerror = (error) => {
-            console.error(`Failed to load image ${id}`, error);
-            reject(error);
-          };
-        }).catch(error => {
-          console.error(`Error loading image ${id}:`, error);
-        });
+        if (!loadedImages[id] && id !== 'mur' && id !== 'mur-mitoyen' && id !== 'cloison') { // Exclure les murs
+          const img = new Image();
+          img.src = require(`../assets/ouvertures/${id}.png`);
+          await new Promise((resolve, reject) => {
+            img.onload = () => {
+              console.log(`Image ${id} loaded`);
+              loadedImages[id] = img;
+              resolve();
+            };
+            img.onerror = (error) => {
+              console.error(`Failed to load image ${id}`, error);
+              reject(error);
+            };
+          }).catch(error => {
+            console.error(`Error loading image ${id}:`, error);
+          });
+        }
       }
       setImages(loadedImages);
     };
 
     loadImages();
-  }, [elements]);
+  }, [elements, toolInHand]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -83,12 +85,7 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
 
     // Dessiner les lignes tracées
     lines.forEach((line) => {
-      ctx.beginPath();
-      ctx.moveTo(line.startX, line.startY);
-      ctx.lineTo(line.endX, line.endY);
-      ctx.strokeStyle = 'black';
-      ctx.lineWidth = line.thickness || 5;
-      ctx.stroke();
+      drawLine(ctx, line);
     });
 
     if (currentLine) {
@@ -120,6 +117,7 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
       }
     });
 
+    // Dessiner l'élément en main sous le curseur
     // Dessiner l'élément en main sous le curseur
     if (toolInHand) {
       const img = images[toolInHand.id];
@@ -225,11 +223,11 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
   const getLineThickness = (wallLabel) => {
     switch (wallLabel) {
       case 'Mur':
-        return 5;
+        return 7;
       case 'Mur Mitoyen':
         return 10;
       case 'Cloison':
-        return 3;
+        return 5;
       default:
         return 5;
     }
@@ -242,23 +240,39 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
 
     // Vérifier si un mur est en main
     if (toolInHand && step === 1) {
-      // Cliquez pour commencer un mur
+      // Aligner le début du mur sur la grille
+      const snappedPosition = snapToGrid(x, y, lines);
       setCurrentLine({
-        startX: x,
-        startY: y,
-        endX: x,
-        endY: y,
+        startX: snappedPosition.x,
+        startY: snappedPosition.y,
+        endX: snappedPosition.x,
+        endY: snappedPosition.y,
         thickness: getLineThickness(toolInHand.label),
+        lineType: getLineType(toolInHand.label), // Ajoutez cette ligne
       });
     } else if (toolInHand) {
       const { snappedPosition, angle } = snapToWall(x, y, lines, toolInHand.type);
       const id = `${toolInHand.id}`; // Utiliser uniquement l'ID sans suffixe
-      const newElement = { id, x: snappedPosition.x, y: snappedPosition.y, type: toolInHand.type, orientation: angle, range: toolInHand.type === 'sensor' ? 50 : undefined };
+      const newElement = { id, x: snappedPosition.x, y: snappedPosition.y, type: toolInHand.type, orientation: angle, material: toolInHand.material, range: toolInHand.type === 'sensor' ? 50 : undefined };
       setElements([...elements, newElement]);
       setHistory([...history, { type: 'add', element: newElement }]); // Ajouter à l'historique
       setToolInHand(null); // Réinitialiser l'élément en main
     } else if (step === 1) { // Vérifiez l'étape actuelle avant de permettre la pose de murs
       setCurrentLine({ startX: x, startY: y, endX: x, endY: y });
+    }
+  };
+
+  // Fonction pour obtenir le type de trait en fonction de l'outil
+  const getLineType = (label) => {
+    switch (label) {
+        case 'Mur':
+            return 'solid';
+        case 'Mur Mitoyen':
+            return 'dash-dot'; // Utiliser le nouveau type de trait
+        case 'Cloison':
+            return 'dotted';
+        default:
+            return 'solid';
     }
   };
 
@@ -367,6 +381,33 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
     setHistory(history);
   };
 
+  // Fonction de rendu pour dessiner les murs
+  const drawLine = (ctx, line) => {
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(line.startX, line.startY);
+    ctx.lineTo(line.endX, line.endY);
+    ctx.lineWidth = line.thickness || 5;
+    ctx.strokeStyle = 'black';
+
+    switch (line.lineType) {
+      case 'dashed':
+        ctx.setLineDash([5, 15]);
+        break;
+      case 'dotted':
+        ctx.setLineDash([5, 3]);
+        break;
+      case 'dash-dot':
+        ctx.setLineDash([10, 5, 2, 5]);
+        break;
+      default:
+        ctx.setLineDash([]);
+    }
+
+    ctx.stroke();
+    ctx.restore();
+  };
+
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       <button onClick={undoLastAction} style={{ position: 'absolute', bottom: 10, left: 10 }}>Undo</button>
@@ -385,14 +426,16 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
 
 const snapToGrid = (x, y, lines, threshold = 15) => {
   for (let line of lines) {
-    if (Math.abs(x - line.startX) < threshold && Math.abs(y - line.startY) < threshold) {
-      return { x: line.startX, y: line.startY };
+    // Vérifier si le point est proche de la ligne horizontale
+    if (Math.abs(y - line.startY) < threshold && x >= Math.min(line.startX, line.endX) && x <= Math.max(line.startX, line.endX)) {
+      return { x, y: line.startY };
     }
-    if (Math.abs(x - line.endX) < threshold && Math.abs(y - line.endY) < threshold) {
-      return { x: line.endX, y: line.endY };
+    // Vérifier si le point est proche de la ligne verticale
+    if (Math.abs(x - line.startX) < threshold && y >= Math.min(line.startY, line.endY) && y <= Math.max(line.startY, line.endY)) {
+      return { x: line.startX, y };
     }
   }
   return { x, y };
-};
+}
 
 export default GridCanvas;
