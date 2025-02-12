@@ -2,7 +2,15 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-const port = 5000; // Choisir un port pour ton serveur Express (ici 5000)
+const port = 7000; // Choisir un port pour ton serveur Express (ici 7000)
+require("dotenv").config();
+const sgMail = require("@sendgrid/mail");
+const cors = require('cors');
+
+app.use(express.json());
+app.use(cors());
+// Charger la clé API SendGrid depuis le fichier .env
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Sert le dossier public
 app.use(express.static(path.join(__dirname, 'public')));
@@ -21,6 +29,39 @@ app.use('/api', apiRoutes);
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
+
+// PARTIE API SENDGRID POUR MAIL //
+
+app.use(express.json()); // Nécessaire pour lire les requêtes JSON
+
+app.post("/api/send-invite", async (req, res) => {
+  const { recipient, senderName, referralLink } = req.body;
+
+  if (!recipient || !senderName || !referralLink) {
+    return res.status(400).json({ message: "Tous les champs sont requis." });
+  }
+
+  const msg = {
+    to: recipient,
+    from: process.env.EMAIL_SENDER,
+    subject: `${senderName} t'invite à rejoindre !`,
+    html: `
+      <h2>Hey ${recipient},</h2>
+      <p>${senderName} t'invite à découvrir notre plateforme.</p>
+      <p><a href="${referralLink}">Clique ici pour t'inscrire</a></p>
+      <p>À bientôt !</p>
+    `,
+  };
+
+  try {
+    await sgMail.send(msg);
+    res.status(200).json({ message: "Email envoyé avec succès !" });
+  } catch (error) {
+    console.error("Erreur SendGrid :", error.response ? error.response.body : error);
+    res.status(500).json({ message: "Erreur lors de l'envoi de l'email." });
+  }
+});
+
 
 // Démarrer le serveur Express
 app.listen(port, () => {

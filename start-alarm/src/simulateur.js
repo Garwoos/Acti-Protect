@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import GridCanvas from './components/GridCanvas';
 import Toolbar from './components/Toolbar';
 import './simulateur.css';
@@ -17,6 +17,15 @@ const Simulateur = () => {
       setStep(step - 1);
     }
   };
+
+  useEffect(() => {
+    document.body.classList.add("no-scroll");
+  
+    return () => {
+      document.body.classList.remove("no-scroll"); // Nettoyage quand on quitte la page
+    };
+  }, []);
+    
 
   return (
     <div className="main-container">

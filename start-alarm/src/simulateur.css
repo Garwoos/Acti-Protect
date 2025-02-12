@@ -1,3 +1,18 @@
+.no-scroll {
+  overflow-y: hidden;
+  height: 100vh;
+}
+
+
+.main-container{
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    background-color: #070f17;
+    color: #f0f0f0;
+}
+
 .simulateur-container {
     flex-direction: row;
     height: 100vh;
@@ -29,7 +44,8 @@
 
 
 .simulateur-toolbar {
-    width: 20%;
+    height: 0;
+    width: 20.25%;
     display: flex;
     justify-content: center;
     align-items: center;

@@ -88,7 +88,7 @@ const Toolbar = ({ setToolInHand, nextStep, prevStep, step }) => {
       width: '80%',
     },
     toolbar: {
-      width: '20%',
+      minWidth: '20%',
       backgroundColor: '#070f17',
       padding: '0rem 1rem 0rem 1rem',
       position: 'absolute',
