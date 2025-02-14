@@ -1,16 +1,18 @@
 /* Conteneur principal */
-.horizontal-carousel-container {
-    position: relative;
-    width: 100%;
-    max-width: 80%; /* Ajustez la largeur selon vos besoins */
-    overflow: hidden; /* Masque les éléments en dehors de la zone visible */
-    margin: 0 auto;
-    background: transparent; /* Optionnel : couleur de fond */
-  }
+.carousel-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 80%; /* Ajustez la largeur selon vos besoins */
+  margin: 0 auto;
+  background: transparent; /* Optionnel : couleur de fond */
+}
 
-  /* Ajout des gradients pour le fondu */
-.horizontal-carousel-container::before,
-.horizontal-carousel-container::after {
+/* Ajout des gradients pour le fondu */
+.carousel-container::before,
+.carousel-container::after {
   content: '';
   position: absolute;
   top: 0;
@@ -21,58 +23,58 @@
 }
 
 /* Gradient à gauche */
-.horizontal-carousel-container::before {
-    left: 0;
-    background: linear-gradient(to right, #070f17 25%, rgba(34, 34, 34, 0) 100%);
+.carousel-container::before {
+  left: 0;
+  background: linear-gradient(to right, transparent 25%, rgba(34, 34, 34, 0) 100%);
+}
+
+/* Gradient à droite */
+.carousel-container::after {
+  right: 0;
+  background: linear-gradient(to left, transparent 25%, rgba(34, 34, 34, 0) 100%);
+}
+
+/* Carrousel */
+.horizontal-carousel {
+  display: flex;
+  flex-wrap: nowrap; /* Empêche le retour à la ligne */
+  transition: transform 2s ease-out; /* Animation de défilement */
+  align-items: center;
+  gap: 10px; /* Espacement entre les éléments */
+  animation: scrollCarousel 20s linear infinite; /* Animation continue */
+}
+
+/* Élément du carrousel */
+.carousel-item {
+  flex: 0 0 auto; /* Empêche les éléments de se rétrécir */
+  width: 10rem; /* Largeur des images */
+  height: 150px; /* Hauteur des images */
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.carousel-item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ajuste l'image pour couvrir tout l'espace */
+  border-radius: 8px;
+  user-select: none;
+  pointer-events: none;
+  padding: 1.5rem;
+}
+
+/* Animation CSS */
+@keyframes scrollCarousel {
+  0% {
+    transform: translateX(0);
   }
-  
-  /* Gradient à droite */
-  .horizontal-carousel-container::after {
-    right: 0;
-    background: linear-gradient(to left, #070f17 25%, rgba(34, 34, 34, 0) 100%);
+  100% {
+    transform: translateX(-50%); /* Déplace de la moitié pour boucle infinie */
   }
-  
-  /* Carrousel */
-  .horizontal-carousel {
-    display: flex;
-    flex-wrap: nowrap; /* Empêche le retour à la ligne */
-    transition: transform 2s ease-out; /* Animation de défilement */
-    align-items: center;
-    gap: 10px; /* Espacement entre les éléments */
-    animation: scrollCarousel 20s linear infinite; /* Animation continue */
-  }
-  
-  /* Élément du carrousel */
-  .carousel-item {
-    flex: 0 0 auto; /* Empêche les éléments de se rétrécir */
-    width: 10rem; /* Largeur des images */
-    height: 150px; /* Hauteur des images */
-    overflow: hidden;
-    border-radius: 8px;
-  }
-  
-  .carousel-item img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Ajuste l'image pour couvrir tout l'espace */
-    border-radius: 8px;
-    user-select: none;
-    pointer-events: none;
-    padding: 1.5rem;
-  }
-  
-  /* Animation CSS */
-  @keyframes scrollCarousel {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(-50%); /* Déplace de la moitié pour boucle infinie */
-    }
-  }
-  
-  /* Style général */
+}
+
+/* Style général */
 .carrousel-app {
   font-family: Arial, sans-serif;
   text-align: center;
@@ -81,7 +83,7 @@
 .accueil-header {
   margin: 20px auto;
   padding: 20px;
-  background-color: #070f17;
+  background-color: transparent;
   border-radius: 8px;
   transition: all 0.5s ease-in-out; /* Transition fluide */
 }
@@ -98,6 +100,11 @@
   display: flex;
   gap: 15px;
   justify-content: center;
+}
+
+.alice-carousel__stage-item{
+  justify-content: center;
+  align-items: center;
 }
 
 .carousel-item {
@@ -147,9 +154,36 @@
   margin-top: 10px;
   font-size: 1rem;
   color: white;
+  align-items: center;
   text-align: center;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: transparent;
   padding: 0.5rem 1rem;
   border-radius: 8px;
   max-width: 150px;
+}
+
+/* Styles pour les flèches de navigation */
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 2;
+  border-radius: 50%;
+}
+
+.carousel-arrow.left-arrow {
+  left: 10px;
+}
+
+.carousel-arrow.right-arrow {
+  right: 10px;
+}
+
+.carousel-arrow:hover {
+  background-color: rgba(0, 0, 0, 0.8);
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import GridCanvas from './components/GridCanvas';
 import Toolbar from './components/Toolbar';
 import './simulateur.css';
