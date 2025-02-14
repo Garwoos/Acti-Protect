@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import Simulation from './Simulation'; // Importer le composant Simulation
 
 const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
   const canvasRef = useRef(null);
@@ -13,11 +14,19 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
   useEffect(() => {
     const loadImages = async () => {
       const loadedImages = { ...images };
-      const imageIds = [...new Set([...elements.map(el => el.id.split('-')[0]), toolInHand?.id].filter(Boolean))]; // Inclure l'ID de l'outil en main et filtrer les valeurs falsy
+      const imageIds = [...new Set([...elements.map(el => el.id), toolInHand?.id].filter(Boolean))]; // Inclure l'ID de l'outil en main et filtrer les valeurs falsy
+
       for (const id of imageIds) {
-        if (!loadedImages[id] && id !== 'mur' && id !== 'mur-mitoyen' && id !== 'cloison') { // Exclure les murs
+        const element = elements.find(el => el.id === id) || (toolInHand && toolInHand.id === id ? toolInHand : null);
+        if (element && !loadedImages[id]) {
           const img = new Image();
-          img.src = require(`../assets/ouvertures/${id}.png`);
+          if (element.type === 'capteur') {
+            img.src = require(`../assets/capteurs/cap${id}.png`);
+          } else if (element.type === 'ouverture') {
+            img.src = require(`../assets/ouvertures/${id}.png`);
+          } else {
+            continue; // Ignorer les murs
+          }
           await new Promise((resolve, reject) => {
             img.onload = () => {
               console.log(`Image ${id} loaded`);
@@ -99,7 +108,7 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
 
     // Dessiner les éléments
     elements.forEach((el) => {
-      const img = images[el.id.split('-')[0]]; // Utiliser l'ID sans suffixe pour obtenir l'image
+      const img = images[el.id]; // Utiliser l'ID sans suffixe pour obtenir l'image
       if (img) {
         console.log(`Drawing ${el.id} at (${el.x}, ${el.y}) with orientation ${el.orientation}`);
         ctx.save();
@@ -118,8 +127,7 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
     });
 
     // Dessiner l'élément en main sous le curseur
-    // Dessiner l'élément en main sous le curseur
-    if (toolInHand) {
+    if (toolInHand && images[toolInHand.id]) {
       const img = images[toolInHand.id];
       if (img) {
         const { snappedPosition, angle } = snapToWall(cursorPosition.x, cursorPosition.y, lines, toolInHand.type);
@@ -238,9 +246,7 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // Vérifier si un mur est en main
     if (toolInHand && step === 1) {
-      // Aligner le début du mur sur la grille
       const snappedPosition = snapToGrid(x, y, lines);
       setCurrentLine({
         startX: snappedPosition.x,
@@ -248,16 +254,16 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
         endX: snappedPosition.x,
         endY: snappedPosition.y,
         thickness: getLineThickness(toolInHand.label),
-        lineType: getLineType(toolInHand.label), // Ajoutez cette ligne
+        lineType: getLineType(toolInHand.label),
       });
     } else if (toolInHand) {
       const { snappedPosition, angle } = snapToWall(x, y, lines, toolInHand.type);
-      const id = `${toolInHand.id}`; // Utiliser uniquement l'ID sans suffixe
+      const id = toolInHand.type === 'sensor' ? `cap${toolInHand.id}` : toolInHand.id; // Utiliser un préfixe pour les capteurs
       const newElement = { id, x: snappedPosition.x, y: snappedPosition.y, type: toolInHand.type, orientation: angle, material: toolInHand.material, range: toolInHand.type === 'sensor' ? 50 : undefined };
       setElements([...elements, newElement]);
-      setHistory([...history, { type: 'add', element: newElement }]); // Ajouter à l'historique
-      setToolInHand(null); // Réinitialiser l'élément en main
-    } else if (step === 1) { // Vérifiez l'étape actuelle avant de permettre la pose de murs
+      setHistory([...history, { type: 'add', element: newElement }]);
+      setToolInHand(null);
+    } else if (step === 1) {
       setCurrentLine({ startX: x, startY: y, endX: x, endY: y });
     }
   };
@@ -310,8 +316,13 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     const type = e.dataTransfer.getData('elementType');
-
-    const { snappedPosition, angle } = snapToWall(x, y, lines, type);
+  
+    const { snappedPosition, angle, valid } = snapToWall(x, y, lines, type);
+    if (!valid) {
+      console.log(`Cannot place ${type} here, no valid wall found.`);
+      return;
+    }
+  
     const id = `${type}`; // Utiliser uniquement l'ID sans suffixe
     setElements([...elements, { id, x: snappedPosition.x, y: snappedPosition.y, type, orientation: angle, range: type === 'sensor' ? 50 : undefined }]);
   };
@@ -321,30 +332,92 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
   };
 
   const snapToWall = (x, y, lines, type, threshold = 50) => {
-    if (type === 'sensor') {
-      return { snappedPosition: snapToGrid(x, y, lines), angle: 0 };
-    }
-
     let closestPoint = { x, y };
     let closestAngle = 0;
     let minDistance = Infinity;
-
+    let valid = false;
+  
+    // Filter the elements to find only the 'ouverture' elements
+    const ouvertures = elements.filter(el => el.type === 'ouverture');
+  
+    // If the element is a 'capteur', snap only to the nearest 'ouverture'
+    if (type === 'capteur') {
+      ouvertures.forEach((ouverture) => {
+        const distance = Math.sqrt((x - ouverture.x) ** 2 + (y - ouverture.y) ** 2);
+        if (distance < minDistance && distance < threshold) {
+          minDistance = distance;
+          closestPoint = { x: ouverture.x, y: ouverture.y };
+          closestAngle = ouverture.orientation;
+          valid = true;
+        }
+      });
+      return { snappedPosition: closestPoint, angle: closestAngle, valid };
+    }
+  
+    // If the element is an 'ouverture', snap only to the nearest wall
+    if (type === 'ouverture') {
+      lines.forEach((line) => {
+        const points = [
+          { x: line.startX, y: line.startY },
+          { x: line.endX, y: line.endY },
+        ];
+  
+        points.forEach((point) => {
+          const distance = Math.sqrt((x - point.x) ** 2 + (y - point.y) ** 2);
+          if (distance < minDistance && distance < threshold) {
+            minDistance = distance;
+            closestPoint = point;
+            closestAngle = Math.atan2(line.endY - line.startY, line.endX - line.startX) * 180 / Math.PI;
+            valid = true;
+          }
+        });
+  
+        const lineLength = Math.sqrt((line.endX - line.startX) ** 2 + (line.endY - line.startY) ** 2);
+        const t = ((x - line.startX) * (line.endX - line.startX) + (y - line.startY) * (line.endY - line.startY)) / (lineLength ** 2);
+        if (t >= 0 && t <= 1) {
+          const projection = {
+            x: line.startX + t * (line.endX - line.startX),
+            y: line.startY + t * (line.endY - line.startY),
+          };
+          const projectionDistance = Math.sqrt((x - projection.x) ** 2 + (y - projection.y) ** 2);
+          if (projectionDistance < minDistance && projectionDistance < threshold) {
+            minDistance = projectionDistance;
+            closestPoint = projection;
+            closestAngle = Math.atan2(line.endY - line.startY, line.endX - line.startX) * 180 / Math.PI;
+  
+            if (x < projection.x) {
+              closestAngle += 180;
+            }
+            valid = true;
+          }
+        }
+      });
+  
+      // If no wall is found within the threshold, return invalid position
+      if (!valid) {
+        return { snappedPosition: { x, y }, angle: 0, valid: false };
+      }
+  
+      return { snappedPosition: closestPoint, angle: closestAngle, valid };
+    }
+  
+    // Default snapping logic for other types
     lines.forEach((line) => {
       const points = [
         { x: line.startX, y: line.startY },
         { x: line.endX, y: line.endY },
       ];
-
+  
       points.forEach((point) => {
         const distance = Math.sqrt((x - point.x) ** 2 + (y - point.y) ** 2);
         if (distance < minDistance && distance < threshold) {
           minDistance = distance;
           closestPoint = point;
           closestAngle = Math.atan2(line.endY - line.startY, line.endX - line.startX) * 180 / Math.PI;
+          valid = true;
         }
       });
-
-      // Calculer la projection du point (x, y) sur la ligne
+  
       const lineLength = Math.sqrt((line.endX - line.startX) ** 2 + (line.endY - line.startY) ** 2);
       const t = ((x - line.startX) * (line.endX - line.startX) + (y - line.startY) * (line.endY - line.startY)) / (lineLength ** 2);
       if (t >= 0 && t <= 1) {
@@ -357,16 +430,16 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
           minDistance = projectionDistance;
           closestPoint = projection;
           closestAngle = Math.atan2(line.endY - line.startY, line.endX - line.startX) * 180 / Math.PI;
-
-          // Inverser l'orientation si l'élément est à gauche du mur
+  
           if (x < projection.x) {
             closestAngle += 180;
           }
+          valid = true;
         }
       }
     });
-
-    return { snappedPosition: closestPoint, angle: closestAngle };
+  
+    return { snappedPosition: closestPoint, angle: closestAngle, valid };
   };
 
   const undoLastAction = () => {
@@ -420,6 +493,7 @@ const GridCanvas = ({ toolInHand, setToolInHand, step }) => {
         onDrop={handleDrop}
         onDragOver={handleDragOver}
       />
+      {step === 4 && <Simulation elements={elements} />} {/* Ajouter le composant Simulation */}
     </div>
   );
 };
