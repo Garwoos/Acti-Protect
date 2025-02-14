@@ -69,6 +69,48 @@
     transition: opacity 2s ease; /* Durée de la transition */
     pointer-events: none; /* Empêche toute interaction lorsque la barre disparaît */
   }
+
+  .protection-rate {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+  }
   
+  .protection-circle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
   
+  .circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 0deg,
+      blue 0%,
+      blue calc(var(--percentage) * 1%),
+      orange calc(var(--percentage) * 1%),
+      orange 100%
+    );
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
   
+  .inner-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    font-weight: bold;
+    position: absolute;
+  }
+
+
