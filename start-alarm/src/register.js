@@ -17,7 +17,7 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch('/api/register', {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -28,8 +28,13 @@ const Register = () => {
       if (response.ok) {
         setMessage('Inscription réussie');
       } else {
-        const errorData = await response.json();
-        setMessage(`Erreur: ${errorData.message}`);
+        const text = await response.text();
+        try {
+          const errorData = JSON.parse(text);
+          setMessage(`Erreur: ${errorData.message}`);
+        } catch (error) {
+          setMessage(`Erreur: ${text}`);
+        }
       }
     } catch (error) {
       setMessage(`Erreur: ${error.message}`);
